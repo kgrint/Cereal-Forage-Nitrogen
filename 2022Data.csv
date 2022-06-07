@@ -1,0 +1,117 @@
+county,EU,Forage,N_trt,bio_lbs,Yield_lbs_ac,wet_yield_ton_ac
+Dunn,101,rye,80,5.6,20328,10.164
+Dunn,102,rye,160,5.8,21054,10.527
+Dunn,103,rye,0,4.6,16698,8.349
+Dunn,104,rye,120,6.4,23232,11.616
+Dunn,105,rye,40,3.4,12342,6.171
+Dunn,201,rye,120,7.2,26136,13.068
+Dunn,202,rye,40,7,25410,12.705
+Dunn,203,rye,80,6,21780,10.89
+Dunn,204,rye,0,4.4,15972,7.986
+Dunn,205,rye,160,2.8,10164,5.082
+Dunn,301,rye,0,4.2,15246,7.623
+Dunn,302,rye,80,6.8,24684,12.342
+Dunn,303,rye,40,5.4,19602,9.801
+Dunn,304,rye,160,5.6,20328,10.164
+Dunn,305,rye,120,6.4,23232,11.616
+Dunn,401,rye,160,7.4,26862,13.431
+Dunn,402,rye,0,4,14520,7.26
+Dunn,403,rye,120,5.2,18876,9.438
+Dunn,404,rye,40,3.8,13794,6.897
+Dunn,405,rye,80,4.8,17424,8.712
+Dane,101,rye,80,9,43560,22
+Dane,102,rye,160,12.5625,45602,23
+Dane,103,rye,0,12.125,44014,22
+Dane,104,rye,120,13.25,48098,24
+Dane,105,rye,40,12.75,46283,23
+Dane,201,rye,120,10.3125,37434,19
+Dane,202,rye,40,10.25,37208,19
+Dane,203,rye,80,10,36300,18
+Dane,204,rye,0,10.4375,37888,19
+Dane,205,rye,160,10.1875,36981,18
+Dane,301,rye,0,11.875,43106,22
+Dane,302,rye,80,11.0625,40157,20
+Dane,303,rye,40,12.4375,45148,23
+Dane,304,rye,160,13,47190,24
+Dane,305,rye,120,12.4375,45148,23
+Dane,401,rye,160,10.9375,39703,20
+Dane,402,rye,0,10.375,37661,19
+Dane,403,rye,120,9.75,35393,18
+Dane,404,rye,40,11.6875,42426,21
+Dane,405,rye,80,11.0625,40157,20
+Door,101,rye,80,63.3,34466.85,17.2
+Door,102,rye,160,55,29947.5,15
+Door,103,rye,0,31,16879.5,8.4
+Door,104,rye,120,46,25047,12.5
+Door,105,rye,40,36.8,20037.6,10
+Door,201,rye,120,48.5,26408.25,13.2
+Door,202,rye,40,43.3,23576.85,11.8
+Door,203,rye,80,55.4,30165.3,15.1
+Door,204,rye,0,39.5,21507.75,10.8
+Door,205,rye,160,52.8,28749.6,14.4
+Door,301,rye,0,63.2,34412.4,17.2
+Door,302,rye,80,47.8,26027.1,13
+Door,303,rye,40,44,23958,12
+Door,304,rye,160,55.6,30274.2,15.1
+Door,305,rye,120,47.4,25809.3,12.9
+Door,401,rye,160,68.5,37298.25,18.6
+Door,402,rye,0,42,22869,11.4
+Door,403,rye,120,62,33759,16.9
+Door,404,rye,40,48.1,26190.45,13.1
+Door,405,rye,80,42.4,23086.8,11.5
+Oconto-Trit,101,triticale,160,12.25,44467.5,22.2
+Oconto,102,triticale,0,6.85,24865.5,12.4
+Oconto,103,triticale,80,9.45,34303.5,17.2
+Oconto,104,triticale,120,9.75,35392.5,17.7
+Oconto,105,triticale,40,8.25,29947.5,15
+Oconto,106,triticale,40 +40(fall and spring),11.85,43015.5,21.5
+Oconto,107,triticale,manure = 111 lbs,7.8,28314,14.2
+Oconto,108,triticale,manure-111 + 40 spring,10.4,37752,18.9
+Oconto,109,triticale,surface manure = 66,5.25,19057.5,9.5
+Oconto,201,triticale,40,10.2,37026,18.5
+Oconto,202,triticale,40 + 40(fall and spring),11.65,42289.5,21.1
+Oconto,203,triticale,0,8.15,29584.5,14.8
+Oconto,204,triticale,160,11.05,40111.5,20.1
+Oconto,205,triticale,80,9.85,35755.5,17.9
+Oconto,206,triticale,120,10.5,38115,19.1
+Oconto,207,triticale,manure = 111,8.75,31762.5,15.9
+Oconto,208,triticale,manure = 111 + 40 in spring,11.25,40837.5,20.4
+Oconto,209,triticale,surf manure = 66 + 40 in spring,9.2,33396,16.7
+Oconto,301,triticale,160,13.3,48279,24.1
+Oconto,302,triticale,80,11.05,40111.5,20.1
+Oconto,303,triticale,0,10.4,37752,18.9
+Oconto,304,triticale,120,12.3,44649,22.3
+Oconto,305,triticale,40 + 40 ( fall and spring),12.5,45375,22.7
+Oconto,306,triticale,40,9.8,35574,17.8
+Oconto,307,triticale,manure = 111,8.4,30492,15.2
+Oconto,308,triticale,manure= 111 + 40 in spring,9.6,34848,17.4
+Oconto,309,triticale,surf manure = 66,10.35,37570.5,18.8
+Oconto,401,triticale,160,11.9,43197,21.6
+Oconto,402,triticale,120,12.7,46101,23.1
+Oconto,403,triticale,40,10.8,39204,19.6
+Oconto,404,triticale,80,10.5,38115,19.1
+Oconto,405,triticale,40 + 40,11.8,42834,21.4
+Oconto,406,triticale,0,9.8,35574,17.8
+Oconto,407,triticale,manure = 111,10.05,36481.5,18.2
+Oconto,408,triticale,manure=111 + 40 in spring,11.8,42834,21.4
+Oconto,409,triticale,surf manure=66 + 40 in spring,11.45,41563.5,20.8
+Marathon,101,rye,80,12.8,46464,23.2
+Marathon,102,rye,160,7,25410,12.7
+Marathon,103,rye,0,2.6,9438,4.7
+Marathon,104,rye,120,8.4,30492,15.2
+Marathon,105,rye,40,4.6,16698,8.3
+Marathon,201,rye,120,10,36300,18.2
+Marathon,202,rye,40,6.8,24684,12.3
+Marathon,203,rye,80,9,32670,16.3
+Marathon,204,rye,0,3.6,13068,6.5
+Marathon,205,rye,160,5.2,18876,9.4
+Marathon,301,rye,0,5,18150,9.1
+Marathon,302,rye,80,7.8,28314,14.2
+Marathon,303,rye,40,4.8,17424,8.7
+Marathon,304,rye,160,7.4,26862,13.4
+Marathon,305,rye,120,5,18150,9.1
+Marathon,401,rye,160,6.2,22506,11.3
+Marathon,402,rye,0,2.8,10164,5.1
+Marathon,403,rye,120,3.4,12342,6.2
+Marathon,404,rye,40,3.4,12342,6.2
+Marathon,405,rye,80,3,10890,5.4
