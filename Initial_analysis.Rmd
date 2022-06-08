@@ -1,0 +1,66 @@
+---
+title: "Initial Analysis"
+output: html_document
+---
+
+```{r}
+#Loading Packages
+library(car)
+library(ggplot2)
+library(emmeans)
+library(lme4)
+library(lmerTest)
+library(tidyverse)
+library(multcomp)
+library(multcompView)
+library(dplyr)
+#library(glmmTMB)
+```
+
+
+```{r}
+#Accessing CSV Data
+getwd()
+data1= read.csv(file="2022Data.csv")
+str(data1)
+```
+
+```{r}
+data2 = data1 %>%
+  mutate(rep= as.factor(rep),
+         N_trt= fct_recode(N_trt,
+                           "0" = "0",
+                           "40" = "40",
+                           "80" = "80",
+                           "120" = "120",
+                           "160" = "160",
+                           "x1" = "40 +40(fall and spring)",
+                           "x2" = "manure = 111 lbs",
+                           "x3" = "manure-111 + 40 spring",
+                           "x4" = "surface manure = 66")) 
+  
+
+str(data2)
+```
+
+
+```{r}
+ggplot(data2, aes(x=N_trt, y= wet_yield_ton_ac, color= rep))+
+  geom_point() +
+  facet_wrap(vars(county))
+```
+
+
+```{r}
+#Wrangling CSV data
+
+data2= data1 %>%
+  
+```
+
+total return= price/ton forage x tons forage/acre
+total cost= N cost/lb x lb applied/acre
+
+
+return= 
+
