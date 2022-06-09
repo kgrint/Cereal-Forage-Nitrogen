@@ -7,14 +7,11 @@ output: html_document
 #Loading Packages
 library(car)
 library(ggplot2)
-library(emmeans)
-library(lme4)
-library(lmerTest)
 library(tidyverse)
-library(multcomp)
-library(multcompView)
 library(dplyr)
-#library(glmmTMB)
+library(mgcv)
+library(magrittr)
+#source("eonr.R")
 ```
 
 
@@ -22,36 +19,131 @@ library(dplyr)
 #Accessing CSV Data
 getwd()
 data1= read.csv(file="2022Data.csv")
+
+data1 = data1 %>%
+  mutate(rep= as.factor(rep))
+
 str(data1)
 ```
 
-```{r}
-data2 = data1 %>%
-  mutate(rep= as.factor(rep),
-         N_trt= fct_recode(N_trt,
-                           "0" = "0",
-                           "40" = "40",
-                           "80" = "80",
-                           "120" = "120",
-                           "160" = "160",
-                           "x1" = "40 +40(fall and spring)",
-                           "x2" = "manure = 111 lbs",
-                           "x3" = "manure-111 + 40 spring",
-                           "x4" = "surf manure = 66 + 40 in spring")) %>%
-  arrange(N_trt)
-  
-
-str(data2)
-```
-
 
 ```{r}
-ggplot(data2, aes(x=N_trt, y= wet_yield_ton_ac, color= rep)) +
+ggplot(data1, aes(x=N_trt, y= wet_yield_ton_ac, color= rep)) +
   geom_point() +
-  facet_wrap(vars(county)) +
-  scale_x_discrete(limits =)
+  facet_wrap(vars(county))
+```
+The data for the locations looks like not all locations reached a critical point (Door, Oconto) and fertility response was poor at Dane County. John recommended trying 4 models (linear-plateau, quadratic, , and ). First, I'm going to start with  Dunn County to get my feet wet.
+
+
+# Dunn County
+
+## Linear Plateau
+Linear Plateau - A linear plateau model is a type of segmented model, and is simpler than quadratic plateaus because there is no curve! Maybe the curve is important to biological systems, but for now note that in a LP model the response line meets a zero-slope plateau at a well-defined join point.
+
+```{r}
+#Packages for Linear Plateau
+library(nlraa)     # for self-starting models
+library(minpack.lm)# for nls with Levenberg-Marquardt algorithm
+library(nlstools)  # for residual plots
+library(modelr)    # for the r-squared and rmse
+library(devtools)  # for sourcing the lin_plateau() function in Method 3
 ```
 
+
+```{r}
+#starting function for linear plateau equation
+lp <- function(N_trt, a, b, jp) {
+  if_else(
+    condition = N_trt < jp,
+    true = a + b * N_trt,
+    false = a + b * jp)
+}
+```
+This function says that up until some join point, the relationship is linear, after which the stick breaks and it is a flat line (plateau). Sometimes this model is called broken-stick or linear-plus-plateau. That join point is important. In the context of soil fertility, it represents a critical soil test value for the nutrient in the soil. The join point of a linear plateau will always be lower than with a quadratic plateau, an important consideration for another time and place.
+
+### Linear Plateau Method 1
+```{r}
+data_Dunn <- data1 %>%
+  filter(county == "Dunn")
+
+DunnLP1 <- nls(formula = wet_yield_ton_ac ~ lp(N_trt, a, b, jp),
+           data = data_Dunn,
+           start = list(a = 7.5, #estimated y intercept
+                        b = 0.03, #estimated slope
+                        jp = 12)) #estimated join point on Y axis
+
+#method failed, maybe the data is too messy
+```
+
+### Linear Plateau Method 2
+```{r}
+DunnLP2 <- nlsLM(formula = wet_yield_ton_ac ~ lp(N_trt, b0, b1, jp),
+      data = data_Dunn,
+      start = list(b0 = 7.5,
+                   b1 = 0.03,
+                   jp = 12))
+#method worked. this one uses a different algorithm
+
+summary(DunnLP2)
+```
+
+### Method 3 using a linear model to get better starting values
+```{r}
+#Using a linear model to get better starting values
+
+Dunn.Linear <- lm(wet_yield_ton_ac ~ N_trt, data = data_Dunn)
+Dunn_start <-coef(Dunn.Linear)
+```
+
+```{r}
+DunnLP3 <- nlsLM(formula = wet_yield_ton_ac ~ lp(N_trt, a, b, jp),
+      data = data_Dunn,
+      start = list(a = Dunn_start[1],
+                   b = Dunn_start[2],
+                   jp = median(data_Dunn$N_trt)))
+
+summary(DunnLP3)
+```
+
+### Method 4 using a function that can self start
+```{r}
+DunnLP4 <- nlsLM(formula = wet_yield_ton_ac ~ SSlinp(N_trt, a, b, jp), data = data_Dunn)
+
+summary(DunnLP4)
+
+```
+
+```{r}
+data_Dunn %>%
+  ggplot(aes(N_trt, wet_yield_ton_ac)) +
+  geom_point() +
+  geom_line(stat = "smooth", 
+            method = "nlsLM", 
+            formula = wet_yield_ton_ac ~ SSlinp(N_trt, a, b, jp),
+            se = FALSE,
+            color= "#CC0000")
+```
+
+```{r}
+
+```
+
+
+```{r}
+dunn.QP <- nls(wet_yield_ton_ac ~ SSquadp3xs(N_trt, a, b, xs), data= filter(data1, county == "Dunn"))
+
+```
+
+
+
+
+```{r}
+library(emmeans)
+library(lme4)
+library(lmerTest)
+library(multcomp)
+library(multcompView)
+```
 
 
 total return= price/ton forage x tons forage/acre
