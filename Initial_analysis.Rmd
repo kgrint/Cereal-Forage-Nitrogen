@@ -37,7 +37,8 @@ data2 = data1 %>%
                            "x1" = "40 +40(fall and spring)",
                            "x2" = "manure = 111 lbs",
                            "x3" = "manure-111 + 40 spring",
-                           "x4" = "surface manure = 66")) 
+                           "x4" = "surf manure = 66 + 40 in spring")) %>%
+  arrange(N_trt)
   
 
 str(data2)
@@ -45,18 +46,13 @@ str(data2)
 
 
 ```{r}
-ggplot(data2, aes(x=N_trt, y= wet_yield_ton_ac, color= rep))+
+ggplot(data2, aes(x=N_trt, y= wet_yield_ton_ac, color= rep)) +
   geom_point() +
-  facet_wrap(vars(county))
+  facet_wrap(vars(county)) +
+  scale_x_discrete(limits =)
 ```
 
 
-```{r}
-#Wrangling CSV data
-
-data2= data1 %>%
-  
-```
 
 total return= price/ton forage x tons forage/acre
 total cost= N cost/lb x lb applied/acre
