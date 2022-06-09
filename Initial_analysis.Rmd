@@ -61,7 +61,7 @@ lp <- function(N_trt, a, b, jp) {
 ```
 This function says that up until some join point, the relationship is linear, after which the stick breaks and it is a flat line (plateau). Sometimes this model is called broken-stick or linear-plus-plateau. That join point is important. In the context of soil fertility, it represents a critical soil test value for the nutrient in the soil. The join point of a linear plateau will always be lower than with a quadratic plateau, an important consideration for another time and place.
 
-### Linear Plateau Method 1
+### Linear Plateau Method 1: Base R
 ```{r}
 data_Dunn <- data1 %>%
   filter(county == "Dunn")
@@ -129,26 +129,87 @@ data_Dunn %>%
 ```
 
 
-```{r}
-dunn.QP <- nls(wet_yield_ton_ac ~ SSquadp3xs(N_trt, a, b, xs), data= filter(data1, county == "Dunn"))
+# Quadratic Plateau
+The QP model is a type of segmented model, and QP is nice in that it has a curved component (important to biological systems) that meets a zero-slope plateau at the join point (important for researchers).
 
+### Quadratic Plateau Function
+```{r}
+# a = intercept
+# b = slope
+# c = quadratic term (curvy bit)
+# jp = join point = break point = critical concentration
+
+qp <- function(N_trt, a, b, jp) {
+    c <- -0.5 * b / jp
+    if_else(condition = N_trt < jp,
+            true  = a + (b * N_trt) + (c * N_trt * N_trt),
+            false = a + (b * jp) + (c * jp * jp))
+}
+```
+
+This function says that up until the join point, the relationship is a second-order polynomial (quadratic), after which it hits a flat line (plateau). This model is sometimes also called quadratic-plus-plateau. That join point is important. In the context of soil fertility, it represents a critical soil test concentration for the nutrient of interest. The join point of a “quad-plat” will always be higher than with a linear plateau, an important consideration for another time and place.
+
+
+### Method 1: Base R
+```{r}
+DunnQP1 <- nls(formula = wet_yield_ton_ac ~ qp(N_trt, a, b, jp),
+            data = data_Dunn,
+            start = list(a = 7.5, b = 0.03, jp = 12)) #didn't work
+
+summary(fit1)
+```
+```{r}
+quadratic.Dunn <- lm(wet_yield_ton_ac ~ poly(N_trt, 2, raw = TRUE), data = data_Dunn)
+
+start_values <- coef(quadratic.Dunn)
+
+start_values
+```
+```{r}
+DunnQP2 <- nls(formula = wet_yield_ton_ac ~ qp(N_trt, a, b, jp),
+            data = data_Dunn,
+            start = list(a = start_values[1],
+                         b = start_values[2],
+                         jp = median(data_Dunn$N_trt)))
+
+summary(DunnQP2)
+```
+
+### Method 2: nlraa
+```{r}
+DunnQP3 <- nls(formula = wet_yield_ton_ac ~ SSquadp3xs(N_trt, a, b, xs), 
+               data= data_Dunn)
+
+summary(DunnQP3)
+```
+
+```{r}
+IC_tab(DunnQP3,DunnLP4)
+```
+# Plotting 
+```{r}
+data_Dunn %>%
+  ggplot(aes(N_trt, wet_yield_ton_ac)) +
+  geom_point() +
+  geom_line(stat = "smooth", 
+            method = "nlsLM", 
+            formula = y ~ SSlinp(x, a, b, jp),
+            se = FALSE,
+            color= "blue") +
+  geom_line(stat="smooth",
+            method = "nls",
+            formula = y ~ SSquadp3xs(x, a, b, jp),
+            se = FALSE,
+            color = "#CC0000") 
+
+lm(wet_yield_ton_ac ~ poly(N_trt, 2, raw = TRUE))
+
++
+  geom_line(stat = "smooth",
+            method = "nls",
+            formula =
 ```
 
 
 
-
-```{r}
-library(emmeans)
-library(lme4)
-library(lmerTest)
-library(multcomp)
-library(multcompView)
-```
-
-
-total return= price/ton forage x tons forage/acre
-total cost= N cost/lb x lb applied/acre
-
-
-return= 
 
