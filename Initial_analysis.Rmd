@@ -200,14 +200,7 @@ data_Dunn %>%
             method = "nls",
             formula = y ~ SSquadp3xs(x, a, b, jp),
             se = FALSE,
-            color = "#CC0000") 
-
-lm(wet_yield_ton_ac ~ poly(N_trt, 2, raw = TRUE))
-
-+
-  geom_line(stat = "smooth",
-            method = "nls",
-            formula =
+            color = "red") 
 ```
 
 
