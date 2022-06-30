@@ -28,11 +28,21 @@ str(data1)
 
 
 ```{r}
-ggplot(data1, aes(x=N_trt, y= wet_yield_ton_ac, color= rep)) +
-  geom_point() +
-  facet_wrap(vars(county))
+data2 = data1 %>%
+  group_by(N_trt, county) %>%
+  summarise(wet_biomass = mean(wet_yield_ton_ac))
+
+ggplot(data2, aes(x=N_trt, y= wet_biomass)) +
+  geom_point(data= data1, mapping = aes(y = wet_yield_ton_ac, alpha = 0.01)) +
+  geom_point(color= "red") + #red dots are just means
+  facet_wrap(vars(county)) +
+  theme(legend.position = "none")
 ```
-The data for the locations looks like not all locations reached a critical point (Door, Oconto) and fertility response was poor at Dane County. John recommended trying 4 models (linear-plateau, quadratic, linear?, and quadratic?). First, I'm going to start with  Dunn County to get my feet wet. Cleaning some data points could help.
+The data for the locations looks like not all locations reached a critical point (Door, Oconto) and fertility response was poor at Dane County. John recommended trying 4 models (linear-plateau, quadratic, linear?, and quadratic?). 
+
+
+
+For determining the AONR for each location I am going to start with  Dunn County since it visually looks like it may have the best chance of giving us a possible AONR estimate. Cleaning some data points could help.
 
 
 # Dunn County
@@ -133,10 +143,6 @@ data_Dunn %>%
             color= "red")
 ```
 
-```{r}
-
-```
-
 
 # Quadratic Plateau
 The QP model is a type of segmented model, and QP is nice in that it has a curved component (important to biological systems) that meets a zero-slope plateau at the join point (important for researchers).
@@ -167,6 +173,7 @@ DunnQP1 <- nls(formula = wet_yield_ton_ac ~ qp(N_trt, a, b, jp),
 
 summary(fit1)
 ```
+
 ```{r}
 quadratic.Dunn <- lm(wet_yield_ton_ac ~ poly(N_trt, 2, raw = TRUE), data = data_Dunn)
 
@@ -174,6 +181,7 @@ start_values <- coef(quadratic.Dunn)
 
 start_values
 ```
+
 ```{r}
 DunnQP2 <- nls(formula = wet_yield_ton_ac ~ qp(N_trt, a, b, jp),
             data = data_Dunn,
@@ -195,7 +203,9 @@ summary(DunnQP3)
 ```{r}
 IC_tab(Dunn.Linear,DunnLP4,quadratic.Dunn,DunnQP3)
 ```
-# Plotting 
+The linear model has the lowest AIC and BIC values, although the values overall aren't that far apart.
+
+# Plotting regression lines
 ```{r}
 data_Dunn %>%
   ggplot(aes(N_trt, wet_yield_ton_ac)) +
@@ -216,7 +226,8 @@ data_Dunn %>%
             method = "nls",
             formula = y ~ SSquadp3xs(x, a, b, jp),
             se = FALSE,
-            color = "red") 
+            color = "red") +
+  labs(title = "Dunn County", x = "N-Rate", y = "wet biomass (ton/acre)")
 ```
 
 
