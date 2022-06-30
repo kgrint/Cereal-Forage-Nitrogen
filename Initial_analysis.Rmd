@@ -3,7 +3,7 @@ title: "Initial Analysis"
 output: html_document
 ---
 
-```{r}
+```{r, echo = FALSE}
 #Loading Packages
 library(car)
 library(ggplot2)
@@ -32,15 +32,23 @@ ggplot(data1, aes(x=N_trt, y= wet_yield_ton_ac, color= rep)) +
   geom_point() +
   facet_wrap(vars(county))
 ```
-The data for the locations looks like not all locations reached a critical point (Door, Oconto) and fertility response was poor at Dane County. John recommended trying 4 models (linear-plateau, quadratic, , and ). First, I'm going to start with  Dunn County to get my feet wet.
+The data for the locations looks like not all locations reached a critical point (Door, Oconto) and fertility response was poor at Dane County. John recommended trying 4 models (linear-plateau, quadratic, linear?, and quadratic?). First, I'm going to start with  Dunn County to get my feet wet. Cleaning some data points could help.
 
 
 # Dunn County
 
+## First, filter data to Dunn County and clean low data point for high N trt
+```{r}
+data_Dunn <- data1 %>%
+  filter(county == "Dunn") %>%
+  slice(-c(10))
+```
+
+
 ## Linear Plateau
 Linear Plateau - A linear plateau model is a type of segmented model, and is simpler than quadratic plateaus because there is no curve! Maybe the curve is important to biological systems, but for now note that in a LP model the response line meets a zero-slope plateau at a well-defined join point.
 
-```{r}
+```{r, echo = FALSE}
 #Packages for Linear Plateau
 library(nlraa)     # for self-starting models
 library(minpack.lm)# for nls with Levenberg-Marquardt algorithm
@@ -63,9 +71,6 @@ This function says that up until some join point, the relationship is linear, af
 
 ### Linear Plateau Method 1: Base R
 ```{r}
-data_Dunn <- data1 %>%
-  filter(county == "Dunn")
-
 DunnLP1 <- nls(formula = wet_yield_ton_ac ~ lp(N_trt, a, b, jp),
            data = data_Dunn,
            start = list(a = 7.5, #estimated y intercept
@@ -87,12 +92,15 @@ DunnLP2 <- nlsLM(formula = wet_yield_ton_ac ~ lp(N_trt, b0, b1, jp),
 summary(DunnLP2)
 ```
 
+
 ### Method 3 using a linear model to get better starting values
 ```{r}
 #Using a linear model to get better starting values
 
 Dunn.Linear <- lm(wet_yield_ton_ac ~ N_trt, data = data_Dunn)
 Dunn_start <-coef(Dunn.Linear)
+
+#intercept was 8.3 and slope was 0.016
 ```
 
 ```{r}
@@ -112,6 +120,7 @@ DunnLP4 <- nlsLM(formula = wet_yield_ton_ac ~ SSlinp(N_trt, a, b, jp), data = da
 summary(DunnLP4)
 
 ```
+Is it normal for the summary of all these models to be same? 
 
 ```{r}
 data_Dunn %>%
@@ -119,9 +128,9 @@ data_Dunn %>%
   geom_point() +
   geom_line(stat = "smooth", 
             method = "nlsLM", 
-            formula = wet_yield_ton_ac ~ SSlinp(N_trt, a, b, jp),
+            formula = y ~ SSlinp(x, a, b, jp),
             se = FALSE,
-            color= "#CC0000")
+            color= "red")
 ```
 
 ```{r}
@@ -184,7 +193,7 @@ summary(DunnQP3)
 ```
 
 ```{r}
-IC_tab(DunnQP3,DunnLP4)
+IC_tab(Dunn.Linear,DunnLP4,quadratic.Dunn,DunnQP3)
 ```
 # Plotting 
 ```{r}
@@ -196,6 +205,13 @@ data_Dunn %>%
             formula = y ~ SSlinp(x, a, b, jp),
             se = FALSE,
             color= "blue") +
+  geom_line(stat = "Smooth",
+            method = "lm",
+            color = "green") +
+  geom_line(stat = "smooth",
+            method = "lm",
+            formula = y ~ poly(x, 2),
+            color = "yellow") + #won't show up because quadratic plateau wasn't reached in this case
   geom_line(stat="smooth",
             method = "nls",
             formula = y ~ SSquadp3xs(x, a, b, jp),
