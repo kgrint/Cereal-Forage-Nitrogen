@@ -1,0 +1,29 @@
+County,FarmName,Rep,Size,PlowDepth,SoilSmplID,pH,OM,P,K
+Outagamie,SUNNY DAZE DAIRY-PP,1,0,7,1,7.2,4,39,169
+Outagamie,SUNNY DAZE DAIRY-PP,2,0,7,2,7.4,3.7,47,173
+Outagamie,SUNNY DAZE DAIRY-PP,3,0,7,3,7.5,3.8,54,188
+Outagamie,SUNNY DAZE DAIRY-PP,4,0,7,4,7.5,3.8,47,170
+Door,PARS-SITE-PP DOOR,1,0,7,1,7.2,2.7,95,207
+Door,PARS-SITE-PP DOOR,2,0,7,2,7.1,3.2,88,204
+Door,PARS-SITE-PP DOOR,3,0,7,3,7.2,2.8,97,228
+Door,PARS-SITE-PP DOOR,4,0,7,4,7,3,92,177
+Outagamie,ONEIDA NATION FARM-PP,1,0,7,1,7.5,2.4,19,66
+Outagamie,ONEIDA NATION FARM-PP,2,0,7,2,7.5,2.6,19,80
+Outagamie,ONEIDA NATION FARM-PP,3,0,7,3,7.3,2.9,14,135
+Outagamie,ONEIDA NATION FARM-PP,4,0,7,4,7.4,2.7,13,91
+Marathon,MARS-PP,1,0,7,1,7.2,4.2,43,273
+Marathon,MARS-PP,2,0,7,2,7.1,4.2,31,257
+Marathon,MARS-PP,3,0,7,3,7.1,4.3,28,277
+Marathon,MARS-PP,4,0,7,4,7.1,4.1,26,283
+Oconto,Gillett-PP,1,0,7,1,7.6,2.6,130,164
+Oconto,Gillett-PP,2,0,7,2,7.7,2.8,135,249
+Oconto,Gillett-PP,3,0,7,3,7.6,2.8,180,264
+Oconto,Gillett-PP,4,0,7,4,7.5,2.6,152,242
+Dunn,Dunn County-PP,1,0,7,1,6.1,3,21,149
+Dunn,Dunn County-PP,2,0,7,2,6.3,3.1,16,144
+Dunn,Dunn County-PP,3,0,7,3,6.2,2.7,19,151
+Dunn,Dunn County-PP,4,0,7,4,6.5,2.3,17,154
+Dane,Dane-PP,1,0,7,1,6.6,5,122,258
+Dane,Dane-PP,2,0,7,2,6.3,5,121,202
+Dane,Dane-PP,3,0,7,3,6.3,5.1,115,233
+Dane,Dane-PP,4,0,7,4,6.2,5.1,99,168

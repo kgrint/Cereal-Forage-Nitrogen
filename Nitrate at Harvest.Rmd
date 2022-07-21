@@ -1,0 +1,43 @@
+---
+title: "Nitrate at Harvest"
+output: html_document
+---
+
+```{r}
+library(ggplot2)
+library(tidyverse)
+library(dplyr)
+library(emmeans)
+library(lme4)
+library(lmerTest)
+library(multcomp)
+```
+
+
+```{r}
+getwd()
+data1= read.csv(file="Post Harvest Nitrogen.csv")
+
+data1 = data1 %>%
+  mutate(Rep= as.factor(Rep))
+
+str(data1)
+```
+
+Dane
+```{r}
+Dane12 = lmer(N_ppm ~ N_trt + (1|Rep), data = (filter(data1, County == "Dane", Depth == "0-12")))
+Dane24 = lmer(N_ppm ~ N_trt + (1|Rep), data = (filter(data1, County == "Dane", Depth == "12-24")))
+Dane36 = lmer(N_ppm ~ N_trt + (1|Rep), data = (filter(data1, County == "Dane", Depth == "24-36")))
+```
+
+```{r}
+D12 = anova(Dane12)
+#Not significant
+
+D24 = anova(Dane24)
+#Not significant
+
+D36 = anova(Dane36)
+#Not significant
+```

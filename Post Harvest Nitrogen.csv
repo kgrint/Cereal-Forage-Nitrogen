@@ -1,0 +1,169 @@
+County,Farm,Rep,EU,N_trt,Depth,N_ppm
+Outagamie 1,Sunny Daze,1,103,0,0-12,4.1
+Outagamie 1,Sunny Daze,2,204,0,0-12,4.2
+Outagamie 1,Sunny Daze,3,301,0,0-12,4.9
+Outagamie 1,Sunny Daze,4,402,0,0-12,3.4
+Outagamie 1,Sunny Daze,1,103,0,12-24,2.2
+Outagamie 1,Sunny Daze,2,204,0,12-24,2.4
+Outagamie 1,Sunny Daze,3,301,0,12-24,2.8
+Outagamie 1,Sunny Daze,4,402,0,12-24,3.6
+Door,PARS,1,103,0,0-12,1.6
+Door,PARS,2,204,0,0-12,2
+Door,PARS,3,301,0,0-12,2.8
+Door,PARS,4,402,0,0-12,1.8
+Outagamie 2,Oneida Nation Farm,1,103,0,0-12,1.3
+Outagamie 2,Oneida Nation Farm,2,204,0,0-12,1.1
+Outagamie 2,Oneida Nation Farm,3,301,0,0-12,0.8
+Outagamie 2,Oneida Nation Farm,4,402,0,0-12,1.1
+Outagamie 2,Oneida Nation Farm,1,103,0,12-24,0.7
+Outagamie 2,Oneida Nation Farm,2,204,0,12-24,0.7
+Outagamie 2,Oneida Nation Farm,3,301,0,12-24,0.7
+Outagamie 2,Oneida Nation Farm,4,402,0,12-24,0.8
+Marathon,MARS,1,103,0,0-12,1.6
+Marathon,MARS,2,204,0,0-12,1.4
+Marathon,MARS,3,301,0,0-12,1.9
+Marathon,MARS,4,402,0,0-12,1.7
+Marathon,MARS,1,103,0,12-24,1.5
+Marathon,MARS,2,204,0,12-24,1
+Marathon,MARS,3,301,0,12-24,1.1
+Marathon,MARS,4,402,0,12-24,2.4
+Oconto,Gillett,1,103,0,0-12,3.5
+Oconto,Gillett,2,204,0,0-12,3.8
+Oconto,Gillett,3,301,0,0-12,3.5
+Oconto,Gillett,4,402,0,0-12,4.5
+Oconto,Gillett,1,103,0,12-24,2.1
+Oconto,Gillett,2,204,0,12-24,1.6
+Oconto,Gillett,3,301,0,12-24,3.3
+Oconto,Gillett,4,402,0,12-24,1.6
+Dunn,Olson,1,103,0,0-12,1.5
+Dunn,Olson,2,204,0,0-12,1.1
+Dunn,Olson,3,301,0,0-12,1.2
+Dunn,Olson,4,402,0,0-12,1.2
+Dunn,Olson,1,103,0,12-24,1.7
+Dunn,Olson,2,204,0,12-24,1
+Dunn,Olson,3,301,0,12-24,1.9
+Dunn,Olson,4,402,0,12-24,2.3
+Dane,,1,103,0,0-12,15.5
+Dane,,2,204,0,0-12,5.4
+Dane,,3,301,0,0-12,5
+Dane,,4,402,0,0-12,5.6
+Dane,,1,103,0,12-24,2.1
+Dane,,2,204,0,12-24,2.6
+Dane,,3,301,0,12-24,10.9
+Dane,,4,402,0,12-24,2.7
+Dane,,1,103,0,24-36,3.2
+Dane,,2,204,0,24-36,3.7
+Dane,,3,301,0,24-36,6.7
+Dane,,4,402,0,24-36,3.1
+Outagamie 1,Sunny Daze,1,101,80,0-12,3.3
+Outagamie 1,Sunny Daze,2,203,80,0-12,4.4
+Outagamie 1,Sunny Daze,3,302,80,0-12,5.3
+Outagamie 1,Sunny Daze,4,405,80,0-12,3.8
+Outagamie 1,Sunny Daze,1,101,80,12-24,2.6
+Outagamie 1,Sunny Daze,2,203,80,12-24,2.3
+Outagamie 1,Sunny Daze,3,302,80,12-24,2.9
+Outagamie 1,Sunny Daze,4,405,80,12-24,2
+Door,PARS,1,101,80,0-12,3.1
+Door,PARS,2,203,80,0-12,2.2
+Door,PARS,3,302,80,0-12,1.8
+Door,PARS,4,405,80,0-12,1.8
+Outagamie 2,Oneida Nation Farm,1,101,80,0-12,1.3
+Outagamie 2,Oneida Nation Farm,2,203,80,0-12,1.1
+Outagamie 2,Oneida Nation Farm,3,302,80,0-12,0.8
+Outagamie 2,Oneida Nation Farm,4,405,80,0-12,1.3
+Outagamie 2,Oneida Nation Farm,1,101,80,12-24,1.1
+Outagamie 2,Oneida Nation Farm,2,203,80,12-24,0.6
+Outagamie 2,Oneida Nation Farm,3,302,80,12-24,0.6
+Outagamie 2,Oneida Nation Farm,4,405,80,12-24,0.9
+Marathon,MARS,1,101,80,0-12,2.1
+Marathon,MARS,2,203,80,0-12,2.2
+Marathon,MARS,3,302,80,0-12,1.1
+Marathon,MARS,4,405,80,0-12,1.7
+Marathon,MARS,1,101,80,12-24,1.3
+Marathon,MARS,2,203,80,12-24,2.1
+Marathon,MARS,3,302,80,12-24,1.8
+Marathon,MARS,4,405,80,12-24,1.4
+Oconto,Gillett,1,101,80,0-12,3.9
+Oconto,Gillett,2,203,80,0-12,5.5
+Oconto,Gillett,3,302,80,0-12,4.5
+Oconto,Gillett,4,405,80,0-12,2.4
+Oconto,Gillett,1,101,80,12-24,2.1
+Oconto,Gillett,2,203,80,12-24,7.9
+Oconto,Gillett,3,302,80,12-24,5.9
+Oconto,Gillett,4,405,80,12-24,1.6
+Dunn,Olson,1,101,80,0-12,1.5
+Dunn,Olson,2,203,80,0-12,4.6
+Dunn,Olson,3,302,80,0-12,2.2
+Dunn,Olson,4,405,80,0-12,8.7
+Dunn,Olson,1,101,80,12-24,1.6
+Dunn,Olson,2,203,80,12-24,2.5
+Dunn,Olson,3,302,80,12-24,4.9
+Dunn,Olson,4,405,80,12-24,4.3
+Dane,,1,101,80,0-12,6
+Dane,,2,203,80,0-12,6.9
+Dane,,3,302,80,0-12,10.3
+Dane,,4,405,80,0-12,16.9
+Dane,,1,101,80,12-24,2.5
+Dane,,2,203,80,12-24,7
+Dane,,3,302,80,12-24,12.2
+Dane,,4,405,80,12-24,3
+Dane,,1,101,80,24-36,2.8
+Dane,,2,203,80,24-36,7.6
+Dane,,3,302,80,24-36,7.8
+Dane,,4,405,80,24-36,4.2
+Outagamie 1,Sunny Daze,1,102,160,0-12,7.3
+Outagamie 1,Sunny Daze,2,205,160,0-12,4.9
+Outagamie 1,Sunny Daze,3,304,160,0-12,3.8
+Outagamie 1,Sunny Daze,4,401,160,0-12,5.1
+Outagamie 1,Sunny Daze,1,102,160,12-24,5.6
+Outagamie 1,Sunny Daze,2,205,160,12-24,4.8
+Outagamie 1,Sunny Daze,3,304,160,12-24,1.9
+Outagamie 1,Sunny Daze,4,401,160,12-24,4
+Door,PARS,1,102,160,0-12,3.2
+Door,PARS,2,205,160,0-12,1.9
+Door,PARS,3,304,160,0-12,3.5
+Door,PARS,4,401,160,0-12,5
+Outagamie 2,Oneida Nation Farm,1,102,160,0-12,1.3
+Outagamie 2,Oneida Nation Farm,2,205,160,0-12,1.3
+Outagamie 2,Oneida Nation Farm,3,304,160,0-12,1.7
+Outagamie 2,Oneida Nation Farm,4,401,160,0-12,0.5
+Outagamie 2,Oneida Nation Farm,1,102,160,12-24,1.3
+Outagamie 2,Oneida Nation Farm,2,205,160,12-24,1.4
+Outagamie 2,Oneida Nation Farm,3,304,160,12-24,1.4
+Outagamie 2,Oneida Nation Farm,4,401,160,12-24,1.5
+Marathon,MARS,1,102,160,0-12,1.8
+Marathon,MARS,2,205,160,0-12,2.6
+Marathon,MARS,3,304,160,0-12,1.8
+Marathon,MARS,4,401,160,0-12,2.4
+Marathon,MARS,1,102,160,12-24,2.2
+Marathon,MARS,2,205,160,12-24,2
+Marathon,MARS,3,304,160,12-24,2.5
+Marathon,MARS,4,401,160,12-24,2.5
+Oconto,Gillett,1,102,160,0-12,20.8
+Oconto,Gillett,2,205,160,0-12,4.7
+Oconto,Gillett,3,304,160,0-12,5.6
+Oconto,Gillett,4,401,160,0-12,4.5
+Oconto,Gillett,1,102,160,12-24,7.4
+Oconto,Gillett,2,205,160,12-24,3.3
+Oconto,Gillett,3,304,160,12-24,6.4
+Oconto,Gillett,4,401,160,12-24,3.5
+Dunn,Olson,1,102,160,0-12,3
+Dunn,Olson,2,205,160,0-12,7.6
+Dunn,Olson,3,304,160,0-12,11.1
+Dunn,Olson,4,401,160,0-12,5.3
+Dunn,Olson,1,102,160,12-24,4
+Dunn,Olson,2,205,160,12-24,4.4
+Dunn,Olson,3,304,160,12-24,2.4
+Dunn,Olson,4,401,160,12-24,3.6
+Dane,,1,102,160,0-12,13.2
+Dane,,2,205,160,0-12,11.9
+Dane,,3,304,160,0-12,9.4
+Dane,,4,401,160,0-12,23.8
+Dane,,1,102,160,12-24,3.5
+Dane,,2,205,160,12-24,4
+Dane,,3,304,160,12-24,5.6
+Dane,,4,401,160,12-24,6.1
+Dane,,1,102,160,24-36,4.1
+Dane,,2,205,160,24-36,4.2
+Dane,,3,304,160,24-36,4.1
+Dane,,4,401,160,24-36,8.4

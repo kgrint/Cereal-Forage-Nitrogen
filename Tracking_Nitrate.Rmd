@@ -1,0 +1,112 @@
+---
+title: "Tracking Nitrate"
+output: pdf_document
+---
+
+```{r}
+library(ggplot2)
+library(tidyverse)
+library(dplyr)
+library(emmeans)
+library(lme4)
+library(lmerTest)
+library(multcomp)
+```
+
+
+```{r}
+getwd()
+data1= read.csv(file="Season_nitrate.csv")
+
+data1 = data1 %>%
+  mutate(Rep= as.factor(Rep))
+
+str(data1)
+```
+
+```{r}
+data1 = data1 %>%
+  mutate(Timing = fct_recode(Timing,
+                    "Fall" = "PP",
+                    "Spring" = "GU",
+                    "Harvest" = "PH"))
+
+order = c("Fall", "Fall", "Fall", "Spring", "Spring", "Spring", "Harvest", "Harvest", "Harvest")
+```
+
+
+```{r}
+data1 %>%
+  ggplot(aes(x = Timing, y = N_ppm)) +
+  geom_point() +
+  facet_grid(rows = vars(Depth), cols = vars(County)) +
+  coord_flip()
+```
+
+# Dane County
+```{r}
+#Dane = lmer(N_ppm ~ Timing*Depth + (1|Rep), data = (filter(data1, County == "Dane")))
+
+#anova(Dane)
+```
+
+Based on what I understand, we're trying to test that there are differences in nitrate levels between sampling times for each depth separately.
+```{r}
+Dane12 = lmer(N_ppm ~ Timing + (1|Rep), data = (filter(data1, County == "Dane", Depth == "0-12")))
+Dane24 = lmer(N_ppm ~ Timing + (1|Rep), data = (filter(data1, County == "Dane", Depth == "12-24")))
+Dane36 = lmer(N_ppm ~ Timing + (1|Rep), data = (filter(data1, County == "Dane", Depth == "24-36")))
+```
+
+```{r}
+anova(Dane12)
+#significant differences based on timing
+
+anova(Dane24)
+#significant differences based on timing
+
+anova(Dane36)
+#significant differences based on timing
+```
+
+```{r}
+Dane12_means = lsmeans(Dane12, ~ Timing, contr= "pairwise", adjust= "none")
+Dane24_means = lsmeans(Dane24, ~ Timing, contr= "pairwise", adjust= "none")
+Dane36_means = lsmeans(Dane36, ~ Timing, contr= "pairwise", adjust= "none")
+
+Dane12_CLD = cld(Dane12_means$lsmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
+Dane24_CLD = cld(Dane24_means$lsmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
+Dane36_CLD = cld(Dane36_means$lsmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
+```
+
+```{r}
+Dane12_CLD = Dane12_CLD %>%
+  mutate(Depth = "0-12")
+
+Dane24_CLD = Dane24_CLD %>%
+  mutate(Depth = "12-24") 
+
+Dane36_CLD = Dane36_CLD %>%
+  mutate(Depth = "24-36")
+
+Dane_CLD = rbind(Dane12_CLD, Dane24_CLD, Dane36_CLD)
+
+Dane_CLD = as_tibble(Dane_CLD) %>% 
+  rename(N_ppm = lsmean) %>%
+  mutate(N_ppm = round(N_ppm,0),
+         Timing = factor(Timing, c("Fall", "Spring", "Harvest")),
+         Depth = factor(Depth, c("0-12", "12-24", "24-36")))
+```
+
+```{r}
+Dane_N_PPM = Dane_CLD %>%
+  ggplot(aes(x= Timing, y= N_ppm)) +
+  geom_col(aes(fill= "red")) +
+  geom_text(aes(label = .group), nudge_y = 5) +
+  facet_grid(rows = vars(Depth)) +
+  labs(title = "Dane", x = "sample timing", y = "soil nitrate (ppm)") +
+  theme(legend.position = "none")
+  
+
+Dane_N_PPM
+```
+
