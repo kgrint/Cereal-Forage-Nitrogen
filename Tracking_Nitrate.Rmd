@@ -3,7 +3,7 @@ title: "Tracking Nitrate"
 output: pdf_document
 ---
 
-```{r}
+```{r, echo= FALSE}
 library(ggplot2)
 library(tidyverse)
 library(dplyr)
@@ -12,7 +12,6 @@ library(lme4)
 library(lmerTest)
 library(multcomp)
 ```
-
 
 ```{r}
 getwd()
@@ -387,7 +386,7 @@ All_N_PPM = all_sites %>%
   ggplot(aes(x= Timing, y= N_ppm)) +
   geom_point(aes(), size = 5) +
   geom_pointrange(aes(ymin = lower.CL, ymax = upper.CL)) +
-  geom_text(aes(label = .group), nudge_x = 0.26, size = 10) +
+  geom_text(aes(label = .group), nudge_x =  0.26, size = 10) +
   facet_grid(rows = vars(Depth), cols = vars(Location)) +
   labs(title =, x = "sample timing", y = "soil nitrate (ppm)") +
   theme(legend.position = "none",
@@ -398,7 +397,6 @@ All_N_PPM = all_sites %>%
         strip.text.x = element_text(size = 30),
         strip.text.y = element_text(size = 30))
   
-
 All_N_PPM
 ```
 
