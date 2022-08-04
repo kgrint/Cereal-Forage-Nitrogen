@@ -19,25 +19,207 @@ getwd()
 data1= read.csv(file="Post Harvest Nitrogen.csv")
 
 data1 = data1 %>%
-  mutate(Rep= as.factor(Rep))
+  mutate(Rep= as.factor(Rep),
+         N_trt = as.factor(N_trt))
 
 str(data1)
 ```
 
-Dane
+# Dane
 ```{r}
 Dane12 = lmer(N_ppm ~ N_trt + (1|Rep), data = (filter(data1, County == "Dane", Depth == "0-12")))
+qqnorm(resid(Dane12))
+plot(Dane12)
+
 Dane24 = lmer(N_ppm ~ N_trt + (1|Rep), data = (filter(data1, County == "Dane", Depth == "12-24")))
+qqnorm(resid(Dane24))
+plot(Dane24)
+
 Dane36 = lmer(N_ppm ~ N_trt + (1|Rep), data = (filter(data1, County == "Dane", Depth == "24-36")))
+qqnorm(resid(Dane36))
+plot(Dane36)
+```
+
+
+
+```{r}
+anova(Dane12)
+#Not significant
+
+anova(Dane24)
+#Not significant
+
+anova(Dane36)
+#Not significant
 ```
 
 ```{r}
-D12 = anova(Dane12)
-#Not significant
+Dane12_means = lsmeans(Dane12, ~ N_trt, contr= "pairwise", adjust= "none")
+Dane24_means = lsmeans(Dane24, ~ N_trt, contr= "pairwise", adjust= "none")
+Dane36_means = lsmeans(Dane36, ~ N_trt, contr= "pairwise", adjust= "none")
 
-D24 = anova(Dane24)
-#Not significant
 
-D36 = anova(Dane36)
+Dane12_CLD = cld(Dane12_means$lsmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
+Dane24_CLD = cld(Dane24_means$lsmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
+Dane36_CLD = cld(Dane36_means$lsmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
+```
+
+
+```{r}
+Dane12_CLD = Dane12_CLD %>%
+  mutate(Depth = "0-12")
+Dane24_CLD = Dane24_CLD %>%
+  mutate(Depth = "12-24")
+Dane36_CLD = Dane36_CLD %>%
+  mutate(Depth = "24-36")
+
+Dane_CLD = rbind(Dane12_CLD, Dane24_CLD, Dane36_CLD)
+
+Dane_CLD = as_tibble(Dane_CLD) %>% 
+  rename(N_ppm = lsmean) %>%
+  mutate(N_ppm = round(N_ppm,0),
+         N_trt = factor(N_trt, c("0", "80", "160")),
+         Depth = factor(Depth, c("0-12", "12-24", "24-36")),
+         Location = "Dane")
+```
+
+# Door
+```{r}
+Door12 = lmer(N_ppm ~ N_trt + (1|Rep), data = (filter(data1, County == "Door", Depth == "0-12")))
+qqnorm(resid(Door12))
+plot(Door12)
+```
+
+```{r}
+anova(Door12)
 #Not significant
 ```
+
+```{r}
+Door12_means = lsmeans(Door12, ~ N_trt, contr= "pairwise", adjust= "none")
+
+Door12_CLD = cld(Door12_means$lsmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
+```
+
+
+```{r}
+Door_CLD = Door12_CLD %>%
+  mutate(Depth = "0-12")
+
+Door_CLD = as_tibble(Door_CLD) %>% 
+  rename(N_ppm = lsmean) %>%
+  mutate(N_ppm = round(N_ppm,0),
+         N_trt = factor(N_trt, c("0", "80", "160")),
+         Depth = factor(Depth, c("0-12")),
+         Location = "Door")
+```
+
+# Dunn
+```{r}
+Dunn12 = lmer(N_ppm ~ N_trt + (1|Rep), data = (filter(data1, County == "Dunn", Depth == "0-12")))
+qqnorm(resid(Dunn12))
+plot(Dunn12) #see if it can be improved
+
+#log transformation
+Dunn12.1 = lmer(log(N_ppm) ~ N_trt + (1|Rep), data = (filter(data1, County == "Dunn", Depth == "0-12")))
+qqnorm(resid(Dunn12.1))
+plot(Dunn12.1) #maybe marginally better, proceed with untransformed
+
+#sqrt transformation
+Dunn12.2 = lmer(sqrt(N_ppm) ~ N_trt + (1|Rep), data = (filter(data1, County == "Dunn", Depth == "0-12")))
+qqnorm(resid(Dunn12.2))
+plot(Dunn12.2)#not better
+
+Dunn24 = lmer(N_ppm ~ N_trt + (1|Rep), data = (filter(data1, County == "Dunn", Depth == "12-24")))
+qqnorm(resid(Dunn24))
+plot(Dunn24)
+```
+
+```{r}
+anova(Dunn12)
+#Not significant
+
+anova(Dunn24)
+#Not significant
+```
+
+```{r}
+Dunn12_means = lsmeans(Dunn12, ~ N_trt, contr= "pairwise", adjust= "none")
+Dunn24_means = lsmeans(Dunn24, ~ N_trt, contr= "pairwise", adjust= "none")
+
+
+Dunn12_CLD = cld(Dunn12_means$lsmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
+Dunn24_CLD = cld(Dunn24_means$lsmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
+```
+
+
+```{r}
+Dunn12_CLD = Dunn12_CLD %>%
+  mutate(Depth = "0-12")
+Dunn24_CLD = Dunn24_CLD %>%
+  mutate(Depth = "12-24")
+
+Dunn_CLD = rbind(Dunn12_CLD, Dunn24_CLD)
+
+Dunn_CLD = as_tibble(Dunn_CLD) %>% 
+  rename(N_ppm = lsmean) %>%
+  mutate(N_ppm = round(N_ppm,0),
+         N_trt = factor(N_trt, c("0", "80", "160")),
+         Depth = factor(Depth, c("0-12", "12-24")),
+         Location = "Dunn")
+```
+
+# Marathon
+```{r}
+Marathon12 = lmer(N_ppm ~ N_trt + (1|Rep), data = (filter(data1, County == "Marathon", Depth == "0-12")))
+qqnorm(resid(Marathon12))
+plot(Marathon12) 
+
+#log transformation
+Dunn12.1 = lmer(log(N_ppm) ~ N_trt + (1|Rep), data = (filter(data1, County == "Dunn", Depth == "0-12")))
+qqnorm(resid(Dunn12.1))
+plot(Dunn12.1) #maybe marginally better, proceed with untransformed
+
+#sqrt transformation
+Dunn12.2 = lmer(sqrt(N_ppm) ~ N_trt + (1|Rep), data = (filter(data1, County == "Dunn", Depth == "0-12")))
+qqnorm(resid(Dunn12.2))
+plot(Dunn12.2)#not better
+
+Dunn24 = lmer(N_ppm ~ N_trt + (1|Rep), data = (filter(data1, County == "Marathon", Depth == "12-24")))
+qqnorm(resid(Dunn24))
+plot(Dunn24)
+```
+
+```{r}
+anova(Dunn12)
+#Not significant
+
+anova(Dunn24)
+#Not significant
+```
+
+```{r}
+Dunn12_means = lsmeans(Dunn12, ~ N_trt, contr= "pairwise", adjust= "none")
+Dunn24_means = lsmeans(Dunn24, ~ N_trt, contr= "pairwise", adjust= "none")
+
+
+Dunn12_CLD = cld(Dunn12_means$lsmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
+Dunn24_CLD = cld(Dunn24_means$lsmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
+```
+
+```{r}
+Dunn12_CLD = Dunn12_CLD %>%
+  mutate(Depth = "0-12")
+Dunn24_CLD = Dunn24_CLD %>%
+  mutate(Depth = "12-24")
+
+Dunn_CLD = rbind(Dunn12_CLD, Dunn24_CLD)
+
+Dunn_CLD = as_tibble(Dunn_CLD) %>% 
+  rename(N_ppm = lsmean) %>%
+  mutate(N_ppm = round(N_ppm,0),
+         N_trt = factor(N_trt, c("0", "80", "160")),
+         Depth = factor(Depth, c("0-12", "12-24")),
+         Location = "Dunn")
+```
+

@@ -1,0 +1,75 @@
+---
+title: "Tracking_Nitrate_Repeated Measures"
+author: "Kolby Grint"
+date: "2022-08-04"
+output: pdf_document
+---
+
+```{r}
+#loading packages
+library(tidyverse)
+library(ggpubr)
+library(rstatix)
+library(lme4)
+```
+
+```{r}
+getwd()
+data1= read.csv(file="Season_nitrate.csv")
+
+data1 = data1 %>%
+  mutate(Rep= as.factor(Rep),
+         EU = as.factor(EU))
+
+str(data1)
+```
+
+```{r}
+data2 = data1 %>%
+  mutate(Timing = fct_recode(Timing,
+                    "1" = "PP",
+                    "2" = "GU",
+                    "3" = "PH"))
+str(data2)
+```
+
+```{r}
+#Filtering dataset
+Dane12 = data2 %>%
+  filter(County == "Dane", Depth == "0-12")
+Dane24 = data2 %>%
+  filter(County == "Dane", Depth == "12-24")
+Dane36 = data2 %>%
+  filter(County == "Dane", Depth == "24-36")
+```
+
+
+#Dane 12
+```{r}
+#Looking for outliers
+Dane12 %>%
+  group_by(Timing) %>%
+  identify_outliers(N_ppm)#no extreme outliers
+
+
+#Normality Test
+Dane12 %>%
+  group_by(Timing) %>%
+  shapiro_test(N_ppm) 
+
+ggqqplot(Dane12, "N_ppm", facet.by = "Timing")#timing 3 not normal, outlier is the cause based on qqplot
+
+#Sphericity Assumption
+Dane12_aov = anova_test(data = Dane12, dv = N_ppm, wid = EU, within = Timing)
+get_anova_table(Dane12_aov)
+```
+
+```{r}
+Dane12_mod = lmer(N_ppm~ Timing + (Timing|Rep), Dane12)
+```
+
+
+```{r}
+Dane12_means = pairwise_t_test(Dane12, N_ppm ~ Timing, paired = TRUE, p.adjust.method = "bonferroni", conf.level = 0.95)
+```
+

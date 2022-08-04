@@ -11,6 +11,7 @@ library(emmeans)
 library(lme4)
 library(lmerTest)
 library(multcomp)
+library(rstatix)
 ```
 
 ```{r}
@@ -34,7 +35,7 @@ order = c("Fall", "Fall", "Fall", "Spring", "Spring", "Spring", "Harvest", "Harv
 ```
 
 
-```{r}
+```{r, echo = FALSE}
 data1 %>%
   ggplot(aes(x = Timing, y = N_ppm)) +
   geom_point() +
@@ -44,33 +45,79 @@ data1 %>%
 
 # Dane County
 ```{r}
-#Dane = lmer(N_ppm ~ Timing*Depth + (1|Rep), data = (filter(data1, County == "Dane")))
-
-#anova(Dane)
+Dane12 = data1 %>%
+  filter(County == "Dane", Depth == "0-12")
+Dane24 = data1 %>%
+  filter(County == "Dane", Depth == "12-24")
+Dane36 = data1 %>%
+  filter(County == "Dane", Depth == "24-36")
 ```
 
-Based on what I understand, we're trying to test that there are differences in nitrate levels between sampling times for each depth separately.
+
 ```{r}
-Dane12 = lmer(N_ppm ~ Timing + (1|Rep), data = (filter(data1, County == "Dane", Depth == "0-12")))
-Dane24 = lmer(N_ppm ~ Timing + (1|Rep), data = (filter(data1, County == "Dane", Depth == "12-24")))
-Dane36 = lmer(N_ppm ~ Timing + (1|Rep), data = (filter(data1, County == "Dane", Depth == "24-36")))
+#Looking for outliers
+Dane12 %>%
+  group_by(Timing) %>%
+  identify_outliers(N_ppm)#1 outlier, no extreme outliers
+Dane24 %>%
+  group_by(Timing) %>%
+  identify_outliers(N_ppm)#1 outlier, no extreme outliers
+Dane36 %>%
+  group_by(Timing) %>%
+  identify_outliers(N_ppm)#1 outlier, no extreme outliers
 ```
 
 ```{r}
-anova(Dane12)
+#Normality Test
+Dane12 %>%
+  group_by(Timing) %>%
+  shapiro_test(N_ppm)#Harvest timing failed
+
+ggqqplot(Dane12, "N_ppm", facet.by = "Timing")
+#Harvest timing is not normal, outlier is the cause 
+#based on qqplot and oulier test
+#It's good enough based on visual test
+
+Dane24 %>%
+  group_by(Timing) %>%
+  shapiro_test(N_ppm)#Harvest timing failed
+
+ggqqplot(Dane24, "N_ppm", facet.by = "Timing")
+#Harvest timing is not normal, outlier is the cause 
+#based on qqplot and oulier test
+#It's good enough based on visual test
+
+Dane36 %>%
+  group_by(Timing) %>%
+  shapiro_test(N_ppm) #Harvest timing failed
+
+ggqqplot(Dane36, "N_ppm", facet.by = "Timing")
+#Harvest timing is not normal, outlier is the cause 
+#based on qqplot and oulier test
+#It's good enough based on visual test
+```
+
+```{r}
+Dane12_model = lmer(N_ppm ~ Timing + (1|Rep), data = Dane12)
+Dane24_model = lmer(N_ppm ~ Timing + (1|Rep), data = Dane24)
+Dane36_model = lmer(N_ppm ~ Timing + (1|Rep), data = Dane36)
+```
+
+```{r}
+anova(Dane12_model)
 #significant differences based on timing
 
-anova(Dane24)
+anova(Dane24_model)
 #significant differences based on timing
 
-anova(Dane36)
+anova(Dane36_model)
 #significant differences based on timing
 ```
 
 ```{r}
-Dane12_means = lsmeans(Dane12, ~ Timing, contr= "pairwise", adjust= "none")
-Dane24_means = lsmeans(Dane24, ~ Timing, contr= "pairwise", adjust= "none")
-Dane36_means = lsmeans(Dane36, ~ Timing, contr= "pairwise", adjust= "none")
+Dane12_means = lsmeans(Dane12_model, ~ Timing, contr= "pairwise", adjust= "none")
+Dane24_means = lsmeans(Dane24_model, ~ Timing, contr= "pairwise", adjust= "none")
+Dane36_means = lsmeans(Dane36_model, ~ Timing, contr= "pairwise", adjust= "none")
 
 Dane12_CLD = cld(Dane12_means$lsmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
 Dane24_CLD = cld(Dane24_means$lsmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
@@ -97,37 +144,59 @@ Dane_CLD = as_tibble(Dane_CLD) %>%
          Location = "Dane")
 ```
 
-```{r}
-Dane_N_PPM = Dane_CLD %>%
-  ggplot(aes(x= Timing, y= N_ppm)) +
-  geom_point(aes()) +
-  geom_pointrange(aes(ymin = lower.CL, ymax = upper.CL)) +
-  geom_text(aes(label = .group), nudge_x = 0.08) +
-  facet_grid(rows = vars(Depth)) +
-  labs(title = "Dane", x = "sample timing", y = "soil nitrate (ppm)") +
-  theme(legend.position = "none")
-  
-
-Dane_N_PPM
-```
-
 # Outagamie 1 - Sunny Daze
 ```{r}
-Outagamie1_12 = lmer(N_ppm ~ Timing + (1|Rep), data = (filter(data1, County == "Outagamie 1", Depth == "0-12")))
-Outagamie1_24 = lmer(N_ppm ~ Timing + (1|Rep), data = (filter(data1, County == "Outagamie 1", Depth == "12-24")))
+Outagamie1_12 = data1 %>%
+  filter(County == "Outagamie 1", Depth == "0-12")
+Outagamie1_24 = data1 %>%
+  filter(County == "Outagamie 1", Depth == "12-24")
+```
+
+
+```{r}
+#Looking for outliers
+Outagamie1_12 %>%
+  group_by(Timing) %>%
+  identify_outliers(N_ppm)#no outliers
+
+Outagamie1_24 %>%
+  group_by(Timing) %>%
+  identify_outliers(N_ppm)#no outliers
 ```
 
 ```{r}
-anova(Outagamie1_12)
+#Normality Test
+Outagamie1_12 %>%
+  group_by(Timing) %>%
+  shapiro_test(N_ppm)#passed
+
+ggqqplot(Outagamie1_12, "N_ppm", facet.by = "Timing")
+#looks good
+
+Outagamie1_24 %>%
+  group_by(Timing) %>%
+  shapiro_test(N_ppm)#passed
+
+ggqqplot(Outagamie1_24, "N_ppm", facet.by = "Timing")
+#looks good
+```
+
+```{r}
+Outagamie1_12_model = lmer(N_ppm ~ Timing + (1|Rep), data = Outagamie1_12)
+Outagamie1_24_model = lmer(N_ppm ~ Timing + (1|Rep), data = Outagamie1_24)
+```
+
+```{r}
+anova(Outagamie1_12_model)
 #significant differences based on timing
 
-anova(Outagamie1_24)
+anova(Outagamie1_24_model)
 #significant differences based on timing
 ```
 
 ```{r}
-Outagamie1_12_means = lsmeans(Outagamie1_12, ~ Timing, contr= "pairwise", adjust= "none")
-Outagamie1_24_means = lsmeans(Outagamie1_24, ~ Timing, contr= "pairwise", adjust= "none")
+Outagamie1_12_means = lsmeans(Outagamie1_12_model, ~ Timing, contr= "pairwise", adjust= "none")
+Outagamie1_24_means = lsmeans(Outagamie1_24_model, ~ Timing, contr= "pairwise", adjust= "none")
 
 Outagamie1_12_CLD = cld(Outagamie1_12_means$lsmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
 Outagamie1_24_CLD = cld(Outagamie1_24_means$lsmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
@@ -150,27 +219,36 @@ Outagamie1_CLD = as_tibble(Outagamie1_CLD) %>%
          Location = "Outagamie 1")
 ```
 
+# Door County - maybe can't use because missing 2 fall samples
 ```{r}
-Outagamie1_N_PPM = Outagamie1_CLD %>%
-  ggplot(aes(x= Timing, y= N_ppm)) +
-  geom_point(aes()) +
-  geom_pointrange(aes(ymin = lower.CL, ymax = upper.CL)) +
-  geom_text(aes(label = .group), nudge_x = 0.08) +
-  facet_grid(rows = vars(Depth)) +
-  labs(title = "Outagamie 1", x = "sample timing", y = "soil nitrate (ppm)") +
-  theme(legend.position = "none")
-  
-
-Outagamie1_N_PPM
+Door12 = data1 %>%
+  filter(County == "Door", Depth == "0-12")
 ```
 
-# Door County
+
 ```{r}
-Door_12 = lmer(N_ppm ~ Timing + (1|Rep), data = (filter(data1, County == "Door", Depth == "0-12")))
+#Looking for outliers
+Door12 %>%
+  group_by(Timing) %>%
+  identify_outliers(N_ppm)#1 outlier and it is extreme
 ```
 
 ```{r}
-anova(Door_12)
+#Normality Test
+Door12 %>%
+  group_by(Timing) %>%
+  shapiro_test(N_ppm) #can't perform because of missing data
+
+ggqqplot(Door12, "N_ppm", facet.by = "Timing")
+#looks good
+```
+
+```{r}
+Door12_model = lmer(N_ppm ~ Timing + (1|Rep), data = Door12)
+```
+
+```{r}
+anova(Door12_model)
 #significant differences based on timing
 ```
 
@@ -192,37 +270,59 @@ Door_CLD = as_tibble(Door_12_CLD) %>%
          Location = "Door")
 ```
 
-```{r}
-Door_N_PPM = Door_CLD %>%
-  ggplot(aes(x= Timing, y= N_ppm)) +
-  geom_point(aes()) +
-  geom_pointrange(aes(ymin = lower.CL, ymax = upper.CL)) +
-  geom_text(aes(label = .group), nudge_x = 0.08) +
-  facet_grid(rows = vars(Depth)) +
-  labs(title = "Door", x = "sample timing", y = "soil nitrate (ppm)") +
-  theme(legend.position = "none")
-  
-
-Door_N_PPM
-```
-
 # Outagamie 2 - Oneida Nation
 ```{r}
-Outagamie2_12 = lmer(N_ppm ~ Timing + (1|Rep), data = (filter(data1, County == "Outagamie", Depth == "0-12")))
-Outagamie2_24 = lmer(N_ppm ~ Timing + (1|Rep), data = (filter(data1, County == "Outagamie", Depth == "12-24")))
+Outagamie2_12 = data1 %>%
+  filter(County == "Outagamie", Depth == "0-12")
+Outagamie2_24 = data1 %>%
+  filter(County == "Outagamie", Depth == "12-24")
+```
+
+
+```{r}
+#Looking for outliers
+Outagamie2_12 %>%
+  group_by(Timing) %>%
+  identify_outliers(N_ppm)#1 outlier, not extreme
+
+Outagamie2_24 %>%
+  group_by(Timing) %>%
+  identify_outliers(N_ppm)# 2 outliers, both extreme
 ```
 
 ```{r}
-anova(Outagamie2_12)
+#Normality Test
+Outagamie2_12 %>%
+  group_by(Timing) %>%
+  shapiro_test(N_ppm)#passed
+
+ggqqplot(Outagamie2_12, "N_ppm", facet.by = "Timing")
+#looks good
+
+Outagamie2_24 %>%
+  group_by(Timing) %>%
+  shapiro_test(N_ppm)#Spring and harvest failed, probs because of outlier
+
+ggqqplot(Outagamie2_24, "N_ppm", facet.by = "Timing")
+#looks good, we'll use it
+```
+
+```{r}
+Outagamie2_12_model = lmer(N_ppm ~ Timing + (1|Rep), data = Outagamie2_12)
+Outagamie2_24_model = lmer(N_ppm ~ Timing + (1|Rep), data = Outagamie2_24)
+```
+
+```{r}
+anova(Outagamie2_12_model)
 #significant differences based on timing
 
-anova(Outagamie2_24)
+anova(Outagamie2_24_model)
 #significant differences based on timing
 ```
 
 ```{r}
-Outagamie2_12_means = lsmeans(Outagamie2_12, ~ Timing, contr= "pairwise", adjust= "none")
-Outagamie2_24_means = lsmeans(Outagamie2_24, ~ Timing, contr= "pairwise", adjust= "none")
+Outagamie2_12_means = lsmeans(Outagamie2_12_model, ~ Timing, contr= "pairwise", adjust= "none")
+Outagamie2_24_means = lsmeans(Outagamie2_24_model, ~ Timing, contr= "pairwise", adjust= "none")
 
 Outagamie2_12_CLD = cld(Outagamie2_12_means$lsmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
 Outagamie2_24_CLD = cld(Outagamie2_24_means$lsmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
@@ -261,21 +361,57 @@ Outagamie2_N_PPM
 
 # Marathon
 ```{r}
-Marathon_12 = lmer(N_ppm ~ Timing + (1|Rep), data = (filter(data1, County == "Marathon", Depth == "0-12")))
-Marathon_24 = lmer(N_ppm ~ Timing + (1|Rep), data = (filter(data1, County == "Marathon", Depth == "12-24")))
+Marathon12 = data1 %>%
+  filter(County == "Marathon", Depth == "0-12")
+Marathon24 = data1 %>%
+  filter(County == "Marathon", Depth == "12-24")
+```
+
+
+```{r}
+#Looking for outliers
+Marathon12 %>%
+  group_by(Timing) %>%
+  identify_outliers(N_ppm)#2 outliers, not extreme
+
+Marathon24 %>%
+  group_by(Timing) %>%
+  identify_outliers(N_ppm)#1 outliers, not extreme
 ```
 
 ```{r}
-anova(Marathon_12)
+#Normality Test
+Marathon12 %>%
+  group_by(Timing) %>%
+  shapiro_test(N_ppm)#failed
+
+ggqqplot(Marathon12, "N_ppm", facet.by = "Timing")
+#looks okay, we'll use it
+
+Marathon24 %>%
+  group_by(Timing) %>%
+  shapiro_test(N_ppm)#passed
+
+ggqqplot(Marathon24, "N_ppm", facet.by = "Timing")
+#looks good, we'll use it
+```
+
+```{r}
+Marathon12_model = lmer(N_ppm ~ Timing + (1|Rep), data = Marathon12)
+Marathon24_model = lmer(N_ppm ~ Timing + (1|Rep), data = Marathon24)
+```
+
+```{r}
+anova(Marathon12_model)
 #significant differences based on timing
 
-anova(Marathon_24)
+anova(Marathon24_model)
 #no significant differences based on timing
 ```
 
 ```{r}
-Marathon_12_means = lsmeans(Marathon_12, ~ Timing, contr= "pairwise", adjust= "none")
-Marathon_24_means = lsmeans(Marathon_24, ~ Timing, contr= "pairwise", adjust= "none")
+Marathon_12_means = lsmeans(Marathon12_model, ~ Timing, contr= "pairwise", adjust= "none")
+Marathon_24_means = lsmeans(Marathon24_model, ~ Timing, contr= "pairwise", adjust= "none")
 
 Marathon_12_CLD = cld(Marathon_12_means$lsmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
 Marathon_24_CLD = cld(Marathon_24_means$lsmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
@@ -300,21 +436,57 @@ Marathon_CLD = as_tibble(Marathon_CLD) %>%
 
 # Oconto
 ```{r}
-Oconto_12 = lmer(N_ppm ~ Timing + (1|Rep), data = (filter(data1, County == "Oconto", Depth == "0-12")))
-Oconto_24 = lmer(N_ppm ~ Timing + (1|Rep), data = (filter(data1, County == "Oconto", Depth == "12-24")))
+Oconto12 = data1 %>%
+  filter(County == "Oconto", Depth == "0-12")
+Oconto24 = data1 %>%
+  filter(County == "Oconto", Depth == "12-24")
 ```
 
 ```{r}
-anova(Oconto_12)
+#Looking for outliers
+Oconto12 %>%
+  group_by(Timing) %>%
+  identify_outliers(N_ppm)#1 outliers, not extreme
+
+Oconto24 %>%
+  group_by(Timing) %>%
+  identify_outliers(N_ppm)
+```
+
+```{r}
+#Normality Test
+Oconto12 %>%
+  group_by(Timing) %>%
+  shapiro_test(N_ppm)#Spring failed
+
+ggqqplot(Oconto12, "N_ppm", facet.by = "Timing")
+#looks okay, we'll use it
+
+Oconto24 %>%
+  group_by(Timing) %>%
+  shapiro_test(N_ppm)#passed
+
+ggqqplot(Oconto24, "N_ppm", facet.by = "Timing")
+#looks good, we'll use it
+```
+
+```{r}
+Oconto12_model = lmer(N_ppm ~ Timing + (1|Rep), data = Oconto12)
+
+Oconto24_model = lmer(N_ppm ~ Timing + (1|Rep), data = Oconto24)
+```
+
+```{r}
+anova(Oconto12_model)
 #significant differences based on timing
 
-anova(Oconto_24)
+anova(Oconto24_model)
 #significant differences based on timing
 ```
 
 ```{r}
-Oconto_12_means = lsmeans(Oconto_12, ~ Timing, contr= "pairwise", adjust= "none")
-Oconto_24_means = lsmeans(Oconto_24, ~ Timing, contr= "pairwise", adjust= "none")
+Oconto_12_means = lsmeans(Oconto12_model, ~ Timing, contr= "pairwise", adjust= "none")
+Oconto_24_means = lsmeans(Oconto24_model, ~ Timing, contr= "pairwise", adjust= "none")
 
 Oconto_12_CLD = cld(Oconto_12_means$lsmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
 Oconto_24_CLD = cld(Oconto_24_means$lsmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=TRUE)
@@ -339,15 +511,51 @@ Oconto_CLD = as_tibble(Oconto_CLD) %>%
 
 # Dunn
 ```{r}
-Dunn_12 = lmer(N_ppm ~ Timing + (1|Rep), data = (filter(data1, County == "Dunn", Depth == "0-12")))
-Dunn_24 = lmer(N_ppm ~ Timing + (1|Rep), data = (filter(data1, County == "Dunn", Depth == "12-24")))
+Dunn12 = data1 %>%
+  filter(County == "Dunn", Depth == "0-12")
+Dunn24 = data1 %>%
+  filter(County == "Dunn", Depth == "12-24")
+```
+
+
+```{r}
+#Looking for outliers
+Dunn12 %>%
+  group_by(Timing) %>%
+  identify_outliers(N_ppm)#1 outliers, not extreme
+
+Dunn24 %>%
+  group_by(Timing) %>%
+  identify_outliers(N_ppm)#no outliers
 ```
 
 ```{r}
-anova(Dunn_12)
+#Normality Test
+Dunn12 %>%
+  group_by(Timing) %>%
+  shapiro_test(N_ppm)#passed
+
+ggqqplot(Dunn12, "N_ppm", facet.by = "Timing")
+#looks great
+
+Dunn24 %>%
+  group_by(Timing) %>%
+  shapiro_test(N_ppm)#passed
+
+ggqqplot(Dunn24, "N_ppm", facet.by = "Timing")
+#looks good
+```
+
+```{r}
+Dunn12_model = lmer(N_ppm ~ Timing + (1|Rep), data = Dunn12)
+Dunn24_model = lmer(N_ppm ~ Timing + (1|Rep), data = Dunn24)
+```
+
+```{r}
+anova(Dunn12_model)
 #significant differences based on timing
 
-anova(Dunn_24)
+anova(Dunn24_model)
 #significant differences based on timing
 ```
 
@@ -383,19 +591,20 @@ all_sites = rbind(Dunn_CLD, Oconto_CLD, Marathon_CLD, Outagamie1_CLD, Outagamie2
 
 ```{r, fig.height = 8, fig.width = 11}
 All_N_PPM = all_sites %>%
-  ggplot(aes(x= Timing, y= N_ppm)) +
+  ggplot(aes(x= Timing, y= N_ppm*4)) +
   geom_point(aes(), size = 5) +
-  geom_pointrange(aes(ymin = lower.CL, ymax = upper.CL)) +
+  geom_pointrange(aes(ymin = lower.CL*4, ymax = upper.CL*4)) +
   geom_text(aes(label = .group), nudge_x =  0.26, size = 10) +
   facet_grid(rows = vars(Depth), cols = vars(Location)) +
-  labs(title =, x = "sample timing", y = "soil nitrate (ppm)") +
+  labs(title = "Background Nitrogen", x = "Sample Timing", y = "Nitrogen (lbs/acre)") +
   theme(legend.position = "none",
         axis.title.x = element_text(size = 50),
         axis.title.y = element_text(size = 50),
         axis.text.y = element_text(size = 30),
         axis.text.x = element_text(size = 30, angle = 45, hjust = 1),
         strip.text.x = element_text(size = 30),
-        strip.text.y = element_text(size = 30))
+        strip.text.y = element_text(size = 30),
+        title = element_text(size = 50))
   
 All_N_PPM
 ```
