@@ -12,6 +12,7 @@ library(lme4)
 library(lmerTest)
 library(multcomp)
 library(rstatix)
+library(ggpubr)
 ```
 
 ```{r}
@@ -70,10 +71,10 @@ Dane36 %>%
 ```{r}
 #Normality Test
 Dane12 %>%
-  group_by(Timing) %>%
+  #group_by(Timing) %>%
   shapiro_test(N_ppm)#Harvest timing failed
 
-ggqqplot(Dane12, "N_ppm", facet.by = "Timing")
+ggqqplot(Dane12, "N_ppm")
 #Harvest timing is not normal, outlier is the cause 
 #based on qqplot and oulier test
 #It's good enough based on visual test
@@ -82,8 +83,7 @@ Dane24 %>%
   group_by(Timing) %>%
   shapiro_test(N_ppm)#Harvest timing failed
 
-ggqqplot(Dane24, "N_ppm", facet.by = "Timing")
-#Harvest timing is not normal, outlier is the cause 
+ggqqplot(Dane24, "N_ppm")
 #based on qqplot and oulier test
 #It's good enough based on visual test
 
@@ -91,7 +91,7 @@ Dane36 %>%
   group_by(Timing) %>%
   shapiro_test(N_ppm) #Harvest timing failed
 
-ggqqplot(Dane36, "N_ppm", facet.by = "Timing")
+ggqqplot(Dane36, "N_ppm")
 #Harvest timing is not normal, outlier is the cause 
 #based on qqplot and oulier test
 #It's good enough based on visual test

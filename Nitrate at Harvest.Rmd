@@ -11,6 +11,7 @@ library(emmeans)
 library(lme4)
 library(lmerTest)
 library(multcomp)
+library(ggpubr)
 ```
 
 
@@ -20,48 +21,70 @@ data1= read.csv(file="Post Harvest Nitrogen.csv")
 
 data1 = data1 %>%
   mutate(Rep= as.factor(Rep),
-         N_trt = as.factor(N_trt))
+         N_trt = as.factor(N_trt),
+         EU = as.factor(EU))
 
 str(data1)
 ```
 
 # Dane
 ```{r}
-Dane12 = lmer(N_ppm ~ N_trt + (1|Rep), data = (filter(data1, County == "Dane", Depth == "0-12")))
-qqnorm(resid(Dane12))
-plot(Dane12)
+Dane12 = data1 %>%
+  filter(County == "Dane", Depth == "0-12")
 
-Dane24 = lmer(N_ppm ~ N_trt + (1|Rep), data = (filter(data1, County == "Dane", Depth == "12-24")))
-qqnorm(resid(Dane24))
-plot(Dane24)
+Dane24 = data1 %>%
+  filter(County == "Dane", Depth == "12-24")
 
-Dane36 = lmer(N_ppm ~ N_trt + (1|Rep), data = (filter(data1, County == "Dane", Depth == "24-36")))
-qqnorm(resid(Dane36))
-plot(Dane36)
+Dane36 = data1 %>%
+  filter(County == "Dane", Depth == "24-36")
+```
+
+
+```{r}
+Dane12_mod = lmer(N_ppm ~ N_trt + (1|Rep), data = Dane12)
+ggqqplot(resid(Dane12_mod)) #Normal distribution of residuals kinda sucks, try sqrt transformation?
+plot(Dane12)#this looks great
+
+Dane12.1_mod = lmer(log(N_ppm) ~ N_trt + (1|Rep), data = Dane12)
+ggqqplot(resid(Dane12.1_mod))#minor improvements with log, but equal variance not as good. Proceed with untransformed
+plot(Dane12.1_mod)
+
+Dane24_mod = lmer(N_ppm ~ N_trt + (1|Rep), data = Dane24)
+ggqqplot(resid(Dane24_mod))#looks great
+plot(Dane24_mod)#looks great
+
+Dane36_mod = lmer(N_ppm ~ N_trt + (1|Rep), data = Dane36)
+ggqqplot(resid(Dane36_mod))#not great
+plot(Dane36_mod)#okay, but likely separation between trts
+
+Dane36.1_mod = lmer(log(N_ppm) ~ N_trt + (1|Rep), data = Dane36)
+ggqqplot(resid(Dane36.1_mod))#not really improved
+plot(Dane36.1_mod)#might be better,
+#go with untransformed
 ```
 
 
 
 ```{r}
-anova(Dane12)
+anova(Dane12_mod)
 #Not significant
 
-anova(Dane24)
+anova(Dane24_mod)
 #Not significant
 
-anova(Dane36)
+anova(Dane36_mod)
 #Not significant
 ```
 
 ```{r}
-Dane12_means = lsmeans(Dane12, ~ N_trt, contr= "pairwise", adjust= "none")
-Dane24_means = lsmeans(Dane24, ~ N_trt, contr= "pairwise", adjust= "none")
-Dane36_means = lsmeans(Dane36, ~ N_trt, contr= "pairwise", adjust= "none")
+Dane12_means = emmeans(Dane12_mod, ~ N_trt, contr= "pairwise", adjust= "none")
+Dane24_means = emmeans(Dane24_mod, ~ N_trt, contr= "pairwise", adjust= "none")
+Dane36_means = emmeans(Dane36_mod, ~ N_trt, contr= "pairwise", adjust= "none")
 
 
-Dane12_CLD = cld(Dane12_means$lsmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
-Dane24_CLD = cld(Dane24_means$lsmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
-Dane36_CLD = cld(Dane36_means$lsmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
+Dane12_CLD = cld(Dane12_means$emmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
+Dane24_CLD = cld(Dane24_means$emmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
+Dane36_CLD = cld(Dane36_means$emmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
 ```
 
 
@@ -76,7 +99,7 @@ Dane36_CLD = Dane36_CLD %>%
 Dane_CLD = rbind(Dane12_CLD, Dane24_CLD, Dane36_CLD)
 
 Dane_CLD = as_tibble(Dane_CLD) %>% 
-  rename(N_ppm = lsmean) %>%
+  rename(N_ppm = emmean) %>%
   mutate(N_ppm = round(N_ppm,0),
          N_trt = factor(N_trt, c("0", "80", "160")),
          Depth = factor(Depth, c("0-12", "12-24", "24-36")),
@@ -85,20 +108,29 @@ Dane_CLD = as_tibble(Dane_CLD) %>%
 
 # Door
 ```{r}
-Door12 = lmer(N_ppm ~ N_trt + (1|Rep), data = (filter(data1, County == "Door", Depth == "0-12")))
-qqnorm(resid(Door12))
-plot(Door12)
+Door12 = data1 %>%
+  filter(County == "Door", Depth == "0-12")
 ```
 
 ```{r}
-anova(Door12)
+Door12_mod = lmer(N_ppm ~ N_trt + (1|Rep), data = Door12)
+ggqqplot(resid(Door12_mod))#not great
+plot(Door12_mod)#okay
+
+Door12.1_mod = lmer(log(N_ppm) ~ N_trt + (1|Rep), data = Door12)
+ggqqplot(resid(Door12.1_mod))#looks better
+plot(Door12.1_mod)#looks better
+```
+
+```{r}
+anova(Door12_mod)
 #Not significant
 ```
 
 ```{r}
-Door12_means = lsmeans(Door12, ~ N_trt, contr= "pairwise", adjust= "none")
+Door12_means = emmeans(Door12_mod, ~ N_trt, contr= "pairwise", adjust= "none")
 
-Door12_CLD = cld(Door12_means$lsmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
+Door12_CLD = cld(Door12_means$emmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
 ```
 
 
@@ -107,7 +139,7 @@ Door_CLD = Door12_CLD %>%
   mutate(Depth = "0-12")
 
 Door_CLD = as_tibble(Door_CLD) %>% 
-  rename(N_ppm = lsmean) %>%
+  rename(N_ppm = emmean) %>%
   mutate(N_ppm = round(N_ppm,0),
          N_trt = factor(N_trt, c("0", "80", "160")),
          Depth = factor(Depth, c("0-12")),
@@ -116,40 +148,49 @@ Door_CLD = as_tibble(Door_CLD) %>%
 
 # Dunn
 ```{r}
-Dunn12 = lmer(N_ppm ~ N_trt + (1|Rep), data = (filter(data1, County == "Dunn", Depth == "0-12")))
-qqnorm(resid(Dunn12))
-plot(Dunn12) #see if it can be improved
+Dunn12 = data1 %>%
+  filter(County == "Dunn", Depth == "0-12")
+
+Dunn24 = data1 %>%
+  filter(County == "Dunn", Depth == "12-24")
+```
+
+
+```{r}
+Dunn12_mod = lmer(N_ppm ~ N_trt + (1|Rep), data = Dunn12)
+ggqqplot(resid(Dunn12_mod))#not great
+plot(Dunn12_mod) #see if it can be improved
 
 #log transformation
-Dunn12.1 = lmer(log(N_ppm) ~ N_trt + (1|Rep), data = (filter(data1, County == "Dunn", Depth == "0-12")))
-qqnorm(resid(Dunn12.1))
-plot(Dunn12.1) #maybe marginally better, proceed with untransformed
+Dunn12.1_mod = lmer(log(N_ppm) ~ N_trt + (1|Rep), data = Dunn12)
+ggqqplot(resid(Dunn12.1_mod))#marginally better
+plot(Dunn12.1_mod) #maybe marginally better
 
 #sqrt transformation
-Dunn12.2 = lmer(sqrt(N_ppm) ~ N_trt + (1|Rep), data = (filter(data1, County == "Dunn", Depth == "0-12")))
-qqnorm(resid(Dunn12.2))
-plot(Dunn12.2)#not better
+Dunn12.2_mod = lmer(sqrt(N_ppm) ~ N_trt + (1|Rep), data = Dunn12)
+ggqqplot(resid(Dunn12.2_mod))#marginally better
+plot(Dunn12.2_mod)#log transformation was better
 
-Dunn24 = lmer(N_ppm ~ N_trt + (1|Rep), data = (filter(data1, County == "Dunn", Depth == "12-24")))
-qqnorm(resid(Dunn24))
-plot(Dunn24)
+Dunn24_mod = lmer(N_ppm ~ N_trt + (1|Rep), data = Dunn24)
+ggqqplot(resid(Dunn24_mod))#looks great
+plot(Dunn24_mod)#satisfactory
 ```
 
 ```{r}
-anova(Dunn12)
+anova(Dunn12_mod)
 #Not significant
 
-anova(Dunn24)
+anova(Dunn24_mod)
 #Not significant
 ```
 
 ```{r}
-Dunn12_means = lsmeans(Dunn12, ~ N_trt, contr= "pairwise", adjust= "none")
-Dunn24_means = lsmeans(Dunn24, ~ N_trt, contr= "pairwise", adjust= "none")
+Dunn12_means = emmeans(Dunn12_mod, ~ N_trt, contr= "pairwise", adjust= "none")
+Dunn24_means = emmeans(Dunn24_mod, ~ N_trt, contr= "pairwise", adjust= "none")
 
 
-Dunn12_CLD = cld(Dunn12_means$lsmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
-Dunn24_CLD = cld(Dunn24_means$lsmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
+Dunn12_CLD = cld(Dunn12_means$emmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
+Dunn24_CLD = cld(Dunn24_means$emmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
 ```
 
 
@@ -162,7 +203,7 @@ Dunn24_CLD = Dunn24_CLD %>%
 Dunn_CLD = rbind(Dunn12_CLD, Dunn24_CLD)
 
 Dunn_CLD = as_tibble(Dunn_CLD) %>% 
-  rename(N_ppm = lsmean) %>%
+  rename(N_ppm = emmean) %>%
   mutate(N_ppm = round(N_ppm,0),
          N_trt = factor(N_trt, c("0", "80", "160")),
          Depth = factor(Depth, c("0-12", "12-24")),
@@ -171,55 +212,240 @@ Dunn_CLD = as_tibble(Dunn_CLD) %>%
 
 # Marathon
 ```{r}
-Marathon12 = lmer(N_ppm ~ N_trt + (1|Rep), data = (filter(data1, County == "Marathon", Depth == "0-12")))
-qqnorm(resid(Marathon12))
-plot(Marathon12) 
+Marathon12 = data1 %>%
+  filter(County == "Marathon", Depth == "0-12")
+Marathon24 = data1 %>%
+  filter(County == "Marathon", Depth == "12-24")
+```
 
-#log transformation
-Dunn12.1 = lmer(log(N_ppm) ~ N_trt + (1|Rep), data = (filter(data1, County == "Dunn", Depth == "0-12")))
-qqnorm(resid(Dunn12.1))
-plot(Dunn12.1) #maybe marginally better, proceed with untransformed
 
-#sqrt transformation
-Dunn12.2 = lmer(sqrt(N_ppm) ~ N_trt + (1|Rep), data = (filter(data1, County == "Dunn", Depth == "0-12")))
-qqnorm(resid(Dunn12.2))
-plot(Dunn12.2)#not better
+```{r}
+Marathon12_mod = lmer(N_ppm ~ N_trt + (1|Rep), data = Marathon12)
+ggqqplot(resid(Marathon12_mod))#looks pretty good
+plot(Marathon12_mod) #satisfied
 
-Dunn24 = lmer(N_ppm ~ N_trt + (1|Rep), data = (filter(data1, County == "Marathon", Depth == "12-24")))
-qqnorm(resid(Dunn24))
-plot(Dunn24)
+
+Marathon24_mod = lmer(N_ppm ~ N_trt + (1|Rep), data = Marathon24)
+ggqqplot(resid(Marathon24_mod))
+plot(Marathon24_mod)
 ```
 
 ```{r}
-anova(Dunn12)
-#Not significant
+anova(Marathon12_mod)
+#Not significant, but almost
 
-anova(Dunn24)
-#Not significant
+anova(Marathon24_mod)
+#Not significant, but almost
 ```
 
 ```{r}
-Dunn12_means = lsmeans(Dunn12, ~ N_trt, contr= "pairwise", adjust= "none")
-Dunn24_means = lsmeans(Dunn24, ~ N_trt, contr= "pairwise", adjust= "none")
+Marathon12_means = emmeans(Marathon12_mod, ~ N_trt, contr= "pairwise", adjust= "none")
+Marathon24_means = emmeans(Marathon24_mod, ~ N_trt, contr= "pairwise", adjust= "none")
 
 
-Dunn12_CLD = cld(Dunn12_means$lsmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
-Dunn24_CLD = cld(Dunn24_means$lsmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
+Marathon12_CLD = cld(Marathon12_means$emmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
+Marathon24_CLD = cld(Marathon24_means$emmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
 ```
 
 ```{r}
-Dunn12_CLD = Dunn12_CLD %>%
+Marathon12_CLD = Marathon12_CLD %>%
   mutate(Depth = "0-12")
-Dunn24_CLD = Dunn24_CLD %>%
+Marathon24_CLD = Marathon24_CLD %>%
   mutate(Depth = "12-24")
 
-Dunn_CLD = rbind(Dunn12_CLD, Dunn24_CLD)
+Marathon_CLD = rbind(Marathon12_CLD, Marathon24_CLD)
 
-Dunn_CLD = as_tibble(Dunn_CLD) %>% 
-  rename(N_ppm = lsmean) %>%
+Marathon_CLD = as_tibble(Marathon_CLD) %>% 
+  rename(N_ppm = emmean) %>%
   mutate(N_ppm = round(N_ppm,0),
          N_trt = factor(N_trt, c("0", "80", "160")),
          Depth = factor(Depth, c("0-12", "12-24")),
-         Location = "Dunn")
+         Location = "Marathon")
+```
+
+# Oconto
+```{r}
+Oconto12 = data1 %>%
+  filter(County == "Oconto", Depth == "0-12")
+Oconto24 = data1 %>%
+  filter(County == "Oconto", Depth == "12-24")
+```
+
+
+```{r}
+Oconto12_mod = lmer(N_ppm ~ N_trt + (1|Rep), data = Oconto12)
+ggqqplot(resid(Oconto12_mod))#looks pretty good
+plot(Oconto12_mod) #satisfied
+
+
+Oconto24_mod = lmer(N_ppm ~ N_trt + (1|Rep), data = Oconto24)
+ggqqplot(resid(Oconto24_mod))
+plot(Oconto24_mod)
+```
+
+```{r}
+anova(Oconto12_mod)
+#Not significant
+
+anova(Oconto24_mod)
+#Not significant
+```
+
+```{r}
+Oconto12_means = emmeans(Oconto12_mod, ~ N_trt, contr= "pairwise", adjust= "none")
+Oconto24_means = emmeans(Oconto24_mod, ~ N_trt, contr= "pairwise", adjust= "none")
+
+
+Oconto12_CLD = cld(Oconto12_means$emmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
+Oconto24_CLD = cld(Oconto24_means$emmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
+```
+
+```{r}
+Oconto12_CLD = Oconto12_CLD %>%
+  mutate(Depth = "0-12")
+Oconto24_CLD = Oconto24_CLD %>%
+  mutate(Depth = "12-24")
+
+Oconto_CLD = rbind(Oconto12_CLD, Oconto24_CLD)
+
+Oconto_CLD = as_tibble(Oconto_CLD) %>% 
+  rename(N_ppm = emmean) %>%
+  mutate(N_ppm = round(N_ppm,0),
+         N_trt = factor(N_trt, c("0", "80", "160")),
+         Depth = factor(Depth, c("0-12", "12-24")),
+         Location = "Oconto")
+```
+
+
+# Outagamie 1
+```{r}
+Outagamie1_12 = data1 %>%
+  filter(County == "Outagamie 1", Depth == "0-12")
+Outagamie1_24 = data1 %>%
+  filter(County == "Outagamie 1", Depth == "12-24")
+```
+
+
+```{r}
+Outagamie1_12_mod = lmer(N_ppm ~ N_trt + (1|Rep), data = Outagamie1_12)
+ggqqplot(resid(Outagamie1_12_mod))#looks pretty good
+plot(Outagamie1_12_mod) #satisfied
+
+
+Outagamie1_24_mod = lmer(N_ppm ~ N_trt + (1|Rep), data = Outagamie1_24)
+ggqqplot(resid(Outagamie1_24_mod))
+plot(Outagamie1_24_mod)
+```
+
+```{r}
+anova(Outagamie1_12_mod)
+#Not significant
+
+anova(Outagamie1_24_mod)
+#Not significant
+```
+
+```{r}
+Outagamie1_12_means = emmeans(Outagamie1_12_mod, ~ N_trt, contr= "pairwise", adjust= "none")
+Outagamie1_24_means = emmeans(Outagamie1_24_mod, ~ N_trt, contr= "pairwise", adjust= "none")
+
+
+Outagamie1_12_CLD = cld(Outagamie1_12_means$emmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
+Outagamie1_24_CLD = cld(Outagamie1_24_means$emmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
+```
+
+```{r}
+Outagamie1_12_CLD = Outagamie1_12_CLD %>%
+  mutate(Depth = "0-12")
+Outagamie1_24_CLD = Outagamie1_24_CLD %>%
+  mutate(Depth = "12-24")
+
+Outagamie1_CLD = rbind(Outagamie1_12_CLD, Outagamie1_24_CLD)
+
+Outagamie1_CLD = as_tibble(Outagamie1_CLD) %>% 
+  rename(N_ppm = emmean) %>%
+  mutate(N_ppm = round(N_ppm,0),
+         N_trt = factor(N_trt, c("0", "80", "160")),
+         Depth = factor(Depth, c("0-12", "12-24")),
+         Location = "Outagamie 1")
+```
+
+
+# Outagamie 2
+```{r}
+Outagamie2_12 = data1 %>%
+  filter(County == "Outagamie 2", Depth == "0-12")
+Outagamie2_24 = data1 %>%
+  filter(County == "Outagamie 2", Depth == "12-24")
+```
+
+```{r}
+Outagamie2_12_mod = lmer(N_ppm ~ N_trt + (1|Rep), data = Outagamie2_12)
+ggqqplot(resid(Outagamie2_12_mod))#looks pretty good
+plot(Outagamie2_12_mod) #satisfied
+
+
+Outagamie2_24_mod = lmer(N_ppm ~ N_trt + (1|Rep), data = Outagamie2_24)
+ggqqplot(resid(Outagamie2_24_mod))
+plot(Outagamie2_24_mod)
+```
+
+```{r}
+anova(Outagamie2_12_mod)
+#Not significant
+
+anova(Outagamie2_24_mod)
+#significant
+```
+
+```{r}
+Outagamie2_12_means = emmeans(Outagamie2_12_mod, ~ N_trt, contr= "pairwise", adjust= "none")
+Outagamie2_24_means = emmeans(Outagamie2_24_mod, ~ N_trt, contr= "pairwise", adjust= "none")
+
+
+Outagamie2_12_CLD = cld(Outagamie2_12_means$emmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
+Outagamie2_24_CLD = cld(Outagamie2_24_means$emmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
+```
+
+```{r}
+Outagamie2_12_CLD = Outagamie2_12_CLD %>%
+  mutate(Depth = "0-12")
+Outagamie2_24_CLD = Outagamie2_24_CLD %>%
+  mutate(Depth = "12-24")
+
+Outagamie2_CLD = rbind(Outagamie2_12_CLD, Outagamie2_24_CLD)
+
+Outagamie2_CLD = as_tibble(Outagamie2_CLD) %>% 
+  rename(N_ppm = emmean) %>%
+  mutate(N_ppm = round(N_ppm,0),
+         N_trt = factor(N_trt, c("0", "80", "160")),
+         Depth = factor(Depth, c("0-12", "12-24")),
+         Location = "Outagamie 2")
+```
+
+
+# All sites
+```{r}
+all_sites = rbind(Dunn_CLD, Oconto_CLD, Marathon_CLD, Outagamie1_CLD, Outagamie2_CLD, Door_CLD, Dane_CLD)
+```
+
+```{r, fig.height = 8, fig.width = 11}
+All_N_PPM = all_sites %>%
+  ggplot(aes(x= N_trt, y= N_ppm*4)) +
+  geom_point(aes(), size = 5) +
+  geom_pointrange(aes(ymin = lower.CL*4, ymax = upper.CL*4)) +
+  geom_text(aes(label = .group), nudge_x =  0.26, size = 10) +
+  facet_grid(rows = vars(Depth), cols = vars(Location)) +
+  labs(title = "Nitrogen at Harvest", x = "Nitrogen Rate", y = "Nitrogen (lbs/acre)") +
+  theme(legend.position = "none",
+        axis.title.x = element_text(size = 50),
+        axis.title.y = element_text(size = 50),
+        axis.text.y = element_text(size = 30),
+        axis.text.x = element_text(size = 30, angle = 45, hjust = 1),
+        strip.text.x = element_text(size = 30),
+        strip.text.y = element_text(size = 30),
+        title = element_text(size = 50))
+  
+All_N_PPM
 ```
 
