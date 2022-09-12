@@ -1,0 +1,220 @@
+---
+title: "Dry Matter"
+author: "Kolby Grint"
+date: "2022-09-12"
+output: pdf_document
+---
+
+```{r, echo = FALSE}
+#Loading Packages
+library(car)
+library(ggplot2)
+library(tidyverse)
+library(dplyr)
+library(mgcv)
+library(magrittr)
+
+library(nlraa)
+library(minpack.lm)
+library(nlstools)
+library(modelr)
+library(devtools)
+#source("eonr.R")
+```
+
+
+```{r}
+#Accessing CSV Data
+getwd()
+data1= read.csv(file="2022Data.csv")
+
+data1 = data1 %>%
+  mutate(rep= as.factor(rep))
+
+str(data1)
+```
+
+```{r}
+data2 = data1 %>%
+  group_by(N_trt, county) %>%
+  summarise(DM_avg = mean(DM_total))
+
+ggplot(data1, aes(x=N_trt, y= DM_total)) +
+  #geom_point(data= data1, mapping = aes(y = DM_total, alpha = 0.01)) +
+  geom_point(color= "red") + #red dots are just means
+  facet_wrap(vars(county)) +
+  theme(legend.position = "none")
+```
+
+
+# Dunn County
+```{r}
+data_Dunn <- data1 %>%
+  filter(county == "Dunn") %>%
+  slice(-c(10)) 
+```
+
+```{r}
+data_Dunn2 = data_Dunn %>%
+  group_by(N_trt) %>%
+  summarise(DM_avg = mean(DM_total))
+
+ggplot(data_Dunn2, aes(x=N_trt, y= DM_avg)) +
+  geom_point(data = data_Dunn, mapping = aes(y = DM_total, alpha = 0.01)) +
+  geom_point(color = "red") + #red dots are just means
+  theme(legend.position = "none")
+```
+
+
+```{r}
+lp <- function(N_trt, a, b, jp) {
+  if_else(
+    condition = N_trt < jp,
+    true = a + b * N_trt,
+    false = a + b * jp)
+}
+```
+
+### Linear Plateau Method 1: Base R
+```{r}
+DunnLP1 <- nls(formula = DM_total ~ lp(N_trt, a, b, jp),
+           data = data_Dunn,
+           start = list(a = 1.45, #estimated y intercept
+                        b = 0.002, #estimated slope
+                        jp = 1.65)) #estimated join point on Y axis
+
+#method failed, maybe the data is too messy
+```
+This function says that up until some join point, the relationship is linear, after which the stick breaks and it is a flat line (plateau). Sometimes this model is called broken-stick or linear-plus-plateau. That join point is important. In the context of soil fertility, it represents a critical soil test value or rate for the nutrient. The join point of a linear plateau will always be lower than with a quadratic plateau, an important consideration for another time and place.
+
+### Linear Plateau Method 2
+```{r}
+DunnLP2 <- nlsLM(formula = DM_total ~ lp(N_trt, b0, b1, jp),
+      data = data_Dunn,
+      start = list(b0 = 1.45,
+                   b1 = 0.002,
+                   jp = 1.65))
+#method worked. this one uses a different algorithm
+
+summary(DunnLP2)
+```
+
+### Method 3 using a linear model to get better starting values
+```{r}
+#Using a linear model to get better starting values
+
+Dunn.Linear <- lm(DM_total ~ N_trt, data = data_Dunn)
+Dunn_start <-coef(Dunn.Linear)
+
+#intercept was 1.43 and slope was 0.016
+```
+
+```{r}
+DunnLP3 <- nlsLM(formula = DM_total ~ lp(N_trt, a, b, jp),
+      data = data_Dunn,
+      start = list(a = Dunn_start[1],
+                   b = Dunn_start[2],
+                   jp = median(data_Dunn$N_trt)))
+
+summary(DunnLP3)
+```
+
+### Method 4 using a function that can self start
+```{r}
+DunnLP4 <- nlsLM(formula = DM_total ~ SSlinp(N_trt, a, b, jp), data = data_Dunn)
+
+summary(DunnLP4)
+
+```
+
+```{r}
+data_Dunn %>%
+  ggplot(aes(N_trt, DM_total)) +
+  geom_point() +
+  geom_line(stat = "smooth", 
+            method = "nlsLM", 
+            formula = y ~ SSlinp(x, a, b, jp),
+            se = FALSE,
+            color= "red")
+```
+
+# Quadratic Plateau
+The QP model is a type of segmented model, and QP is nice in that it has a curved component (important to biological systems) that meets a zero-slope plateau at the join point (important for researchers).
+
+### Quadratic Plateau Function
+```{r}
+# a = intercept
+# b = slope
+# c = quadratic term (curvy bit)
+# jp = join point = break point = critical concentration
+
+qp <- function(N_trt, a, b, jp) {
+    c <- -0.5 * b / jp
+    if_else(condition = N_trt < jp,
+            true  = a + (b * N_trt) + (c * N_trt * N_trt),
+            false = a + (b * jp) + (c * jp * jp))
+}
+```
+
+This function says that up until the join point, the relationship is a second-order polynomial (quadratic), after which it hits a flat line (plateau). This model is sometimes also called quadratic-plus-plateau. That join point is important. In the context of soil fertility, it represents a critical soil test concentration for the nutrient of interest. The join point of a “quad-plat” will always be higher than with a linear plateau, an important consideration for another time and place.
+
+
+### Method 1: Base R
+```{r}
+DunnQP1 <- nls(formula = DM_total ~ qp(N_trt, a, b, jp),
+            data = data_Dunn,
+            start = list(a = 7.5, b = 0.03, jp = 12)) #didn't work
+
+summary(fit1)
+```
+
+```{r}
+quadratic.Dunn <- lm(DM_total ~ poly(N_trt, 2, raw = TRUE), data = data_Dunn)
+
+start_values <- coef(quadratic.Dunn)
+
+start_values
+```
+
+```{r}
+DunnQP2 <- nls(formula = DM_total ~ qp(N_trt, a, b, jp),
+            data = data_Dunn,
+            start = list(a = start_values[1],
+                         b = start_values[2],
+                         jp = median(data_Dunn$N_trt)))
+
+summary(DunnQP2)
+```
+
+### Method 2: nlraa
+```{r}
+DunnQP3 <- nls(formula = DM_total ~ SSquadp3xs(N_trt, a, b, xs), data= data_Dunn)
+
+summary(DunnQP3)
+```
+
+```{r}
+IC_tab(Dunn.Linear,DunnLP4,quadratic.Dunn,DunnQP3)
+```
+The linear model has the lowest AIC and BIC values.
+
+# Plotting regression lines
+```{r}
+data_Dunn %>%
+  ggplot(aes(N_trt, DM_total)) +
+  geom_point() +
+  geom_line(stat = "smooth", 
+            method = "nlsLM", 
+            formula = y ~ SSlinp(x, a, b, jp),
+            se = FALSE,
+            color= "blue") +
+  geom_line(stat = "Smooth",
+            method = "lm",
+            color = "green") +
+  geom_line(stat="smooth",
+            method = "nls",
+            formula = y ~ SSquadp3xs(x, a, b, jp),
+            se = FALSE,
+            color = "red") +
+  labs(title = "Dunn County", x = "N-Rate", y = "wet biomass (ton/acre)")
+```
