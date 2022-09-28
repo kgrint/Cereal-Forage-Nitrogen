@@ -1,0 +1,78 @@
+---
+title: "AONR Determination"
+author: "Kolby Grint"
+date: "2022-09-28"
+output: pdf_document
+---
+
+```{r}
+library(nlraa)
+library(minpack.lm)
+library(nlstools)
+library(modelr)
+library(devtools)
+library(car)
+library(ggplot2)
+library(tidyverse)
+library(dplyr)
+```
+
+```{r}
+#Accessing CSV Data
+getwd()
+data1= read.csv(file="2022Data.csv")
+
+data1 = data1 %>%
+  mutate(rep= as.factor(rep)#,
+         #N_trt = as.factor(N_trt)
+         )
+
+str(data1)
+```
+
+# Marathon
+```{r}
+data_Mara <- data1 %>%
+  filter(county == "Marathon")
+
+```
+
+## Linear Plateau Model
+```{r}
+MaraLP <- nlsLM(formula = DM_total ~ SSlinp(N_trt, a, b, jp), data = data_Mara)
+
+summary(MaraLP)
+```
+
+## Quadratic Plateau Model
+```{r}
+MaraQP <- nls(formula = DM_total ~ SSquadp3xs(N_trt, a, b, xs), 
+               data= data_Mara)
+
+summary(MaraQP)
+```
+
+```{r}
+data_Mara %>%
+  ggplot(aes(N_trt, DM_total)) +
+  geom_point() +
+  geom_line(stat = "smooth", 
+            method = "nlsLM", 
+            formula = y ~ SSlinp(x, a, b, jp),
+            se = FALSE,
+            color= "blue") +
+  geom_line(stat = "Smooth",
+            method = "lm",
+            color = "green") +
+  geom_line(stat = "smooth", # Quadratic
+            method = "lm",
+            formula = y ~ poly(x, 2),
+            color = "purple") + 
+  geom_line(stat="smooth", # Quadratic Plateau
+            method = "nls",
+            formula = y ~ SSquadp3xs(x, a, b, jp),
+            se = FALSE,
+            color = "red") +
+  labs(title = "Marathon County", x = "N-Rate", y = "Dry Matter (ton/acre)")
+```
+

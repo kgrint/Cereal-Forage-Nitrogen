@@ -1,8 +1,8 @@
 ---
-title: "Dry Matter"
+title: "DM_analysis_FertilizedvsNot"
 author: "Kolby Grint"
-date: "2022-09-12"
-output: pdf_document
+date: "2022-09-28"
+output: html_document
 ---
 
 ```{r, echo = FALSE}
@@ -19,13 +19,6 @@ library(emmeans)
 library(rstatix)
 library(ggpubr)
 library(multcomp)
-
-library(nlraa)
-library(minpack.lm)
-library(nlstools)
-library(modelr)
-library(devtools)
-#source("eonr.R")
 ```
 
 
@@ -35,18 +28,27 @@ getwd()
 data1= read.csv(file="2022Data.csv")
 
 data1 = data1 %>%
-  mutate(rep= as.factor(rep),
-         N_trt = as.factor(N_trt))
+  mutate(rep= as.factor(rep)#,
+         #N_trt = as.factor(N_trt)
+         )
 
 str(data1)
 ```
 
 ```{r}
+data1 = data1 %>%
+  mutate(fertilized = case_when(
+  N_trt < 1 ~ "No",
+  N_trt > 1 ~ "Yes"))
+```
+
+
+```{r}
 data2 = data1 %>%
-  group_by(N_trt, county) %>%
+  group_by(fertilized, county) %>%
   summarise(DM_avg = mean(DM_total))
 
-ggplot(data2, aes(x=N_trt, y= DM_avg)) +
+ggplot(data2, aes(x=fertilized, y= DM_avg)) +
   geom_point(data= data1, mapping = aes(y = DM_total, alpha = 0.01)) +
   geom_point(color= "red") + #red dots are just means
   facet_wrap(vars(county)) +
@@ -71,17 +73,17 @@ ggqqplot(data_Dunn, "DM_total")
 ```
 
 ```{r}
-Dunn_mod = lmer(DM_total ~ N_trt + (1|rep), data = data_Dunn)
+Dunn_mod = lmer(DM_total ~ fertilized + (1|rep), data = data_Dunn)
 
 Dunn_AOV = anova(Dunn_mod)
-#not significant, but close 
+#not significant
 
 Dunn_AOV = Dunn_AOV %>%
   mutate(Location = "Dunn")
 ```
 
 ```{r}
-Dunn_means = emmeans(Dunn_mod, ~ N_trt, contr= "pairwise", adjust= "tukey")
+Dunn_means = emmeans(Dunn_mod, ~ fertilized, contr= "pairwise", adjust= "tukey")
 
 Dunn_CLD = cld(Dunn_means$emmean, alpha=0.05, Letters=letters, sort=FALSE, reverse=TRUE)
 
@@ -108,7 +110,7 @@ ggqqplot(data_Dane, "DM_total")
 ```
 
 ```{r}
-Dane_mod = lmer(DM_total ~ N_trt + (1|rep), data = data_Dane)
+Dane_mod = lmer(DM_total ~ fertilized + (1|rep), data = data_Dane)
 
 Dane_AOV = anova(Dane_mod)
 #not significant
@@ -118,7 +120,7 @@ Dane_AOV = Dane_AOV %>%
 ```
 
 ```{r}
-Dane_means = emmeans(Dane_mod, ~ N_trt, contr= "pairwise", adjust= "tukey")
+Dane_means = emmeans(Dane_mod, ~ fertilized, contr= "pairwise", adjust= "tukey")
 
 Dane_CLD = cld(Dane_means$emmean, alpha=0.05, Letters=letters, sort=FALSE, reverse=TRUE)
 
@@ -145,7 +147,7 @@ ggqqplot(data_Door, "DM_total")
 ```
 
 ```{r}
-Door_mod = lmer(DM_total ~ N_trt + (1|rep), data = data_Door)
+Door_mod = lmer(DM_total ~ fertilized + (1|rep), data = data_Door)
 
 Door_AOV = anova(Door_mod)
 #not significant
@@ -155,7 +157,7 @@ Door_AOV = Door_AOV %>%
 ```
 
 ```{r}
-Door_means = emmeans(Door_mod, ~ N_trt, contr= "pairwise", adjust= "tukey")
+Door_means = emmeans(Door_mod, ~ fertilized, contr= "pairwise", adjust= "tukey")
 
 Door_CLD = cld(Door_means$emmean, alpha=0.05, Letters=letters, sort=FALSE, reverse=TRUE)
 
@@ -181,17 +183,17 @@ ggqqplot(data_Ocon, "DM_total")
 ```
 
 ```{r}
-Ocon_mod = lmer(DM_total ~ N_trt + (1|rep), data = data_Ocon)
+Ocon_mod = lmer(DM_total ~ fertilized + (1|rep), data = data_Ocon)
 
 Ocon_AOV = anova(Ocon_mod)
-#significant
+#barely significant
 
 Ocon_AOV = Ocon_AOV %>%
   mutate(Location = "Oconto")
 ```
 
 ```{r}
-Ocon_means = emmeans(Ocon_mod, ~ N_trt, contr= "pairwise", adjust= "tukey")
+Ocon_means = emmeans(Ocon_mod, ~ fertilized, contr= "pairwise", adjust= "tukey")
 
 Ocon_CLD = cld(Ocon_means$emmean, alpha=0.05, Letters=letters, sort=FALSE, reverse=TRUE)
 
@@ -218,7 +220,7 @@ ggqqplot(data_Mara, "DM_total")
 ```
 
 ```{r}
-Mara_mod = lmer(DM_total ~ N_trt + (1|rep), data = data_Mara)
+Mara_mod = lmer(DM_total ~ fertilized + (1|rep), data = data_Mara)
 
 Mara_AOV = anova(Mara_mod)
 #not significant
@@ -228,9 +230,9 @@ Mara_AOV = Mara_AOV %>%
 ```
 
 ```{r}
-Mara_means = emmeans(Mara_mod, ~ N_trt, contr= "pairwise", adjust= "tukey")
+Mara_means = emmeans(Mara_mod, ~ fertilized, contr= "pairwise", adjust= "none")
 
-Mara_CLD = cld(Mara_means$emmean, alpha=0.05, Letters=letters, sort=FALSE, reverse=TRUE)
+Mara_CLD = cld(Mara_means$emmean, alpha=0.1, Letters=letters, sort=FALSE, reverse=TRUE)
 
 Mara_CLD = as_tibble(Mara_CLD) %>% 
   rename(DM = emmean) %>%
@@ -254,17 +256,17 @@ ggqqplot(data_Outa1, "DM_total")
 ```
 
 ```{r}
-Outa1_mod = lmer(DM_total ~ N_trt + (1|rep), data = data_Outa1)
+Outa1_mod = lmer(DM_total ~ fertilized + (1|rep), data = data_Outa1)
 
 Outa1_AOV = anova(Outa1_mod)
-#not significant
+#significant
 
 Outa1_AOV = Outa1_AOV %>%
   mutate(Location = "Outagamie 1")
 ```
 
 ```{r}
-Outa1_means = emmeans(Outa1_mod, ~ N_trt, contr= "pairwise", adjust= "tukey")
+Outa1_means = emmeans(Outa1_mod, ~ fertilized, contr= "pairwise", adjust= "tukey")
 
 Outa1_CLD = cld(Outa1_means$emmean, alpha= 0.05, Letters=letters, sort=FALSE, reverse=TRUE)
 
@@ -290,7 +292,7 @@ ggqqplot(data_Outa2, "DM_total")
 ```
 
 ```{r}
-Outa2_mod = lmer(DM_total ~ N_trt + (1|rep), data = data_Outa2)
+Outa2_mod = lmer(DM_total ~ fertilized + (1|rep), data = data_Outa2)
 
 Outa2_AOV = anova(Outa2_mod)
 #significant
@@ -300,7 +302,7 @@ Outa2_AOV = Outa2_AOV %>%
 ```
 
 ```{r}
-Outa2_means = emmeans(Outa2_mod, ~ N_trt, contr= "pairwise", adjust= "tukey")
+Outa2_means = emmeans(Outa2_mod, ~ fertilized, contr= "pairwise", adjust= "tukey")
 
 Outa2_CLD = cld(Outa2_means$emmean, alpha = 0.05, Letters = letters, sort = FALSE, reverse = TRUE)
 
@@ -319,7 +321,7 @@ DMMeans_Results = rbind(Dunn_CLD, Dane_CLD, Door_CLD, Mara_CLD, Ocon_CLD, Outa1_
 
 ```{r}
 library(writexl)
-write_xlsx(DMAnova_Results, "DMAnova_Results.xlsx")
-write_xlsx(DMMeans_Results, "DMMeans_Results.xlsx")
+write_xlsx(DMAnova_Results, "DMAnova_Results.YesvsNo.xlsx")
+write_xlsx(DMMeans_Results, "DMMeans_Results.YesvsNo.xlsx")
 ```
 

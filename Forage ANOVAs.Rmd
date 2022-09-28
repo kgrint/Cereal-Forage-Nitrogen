@@ -1,0 +1,1092 @@
+---
+title: "Forage ANOVAs"
+author: "Kolby Grint"
+date: "2022-09-27"
+output: html_document
+---
+
+```{r, echo = FALSE}
+#Loading Packages
+library(car)
+library(ggplot2)
+library(tidyverse)
+library(dplyr)
+library(mgcv)
+library(magrittr)
+library(lmerTest)
+library(lme4)
+library(emmeans)
+library(rstatix)
+library(ggpubr)
+library(multcomp)
+```
+
+Crude Protein, Ash, aNDFom, NDFD30, Lignin, Ash, DM Yield, Milk Per Ton (MPT), Milk Per Acre (MPA), RFV, and RFQ
+
+```{r, echo = FALSE}
+#Accessing CSV Data
+getwd()
+data1= read.csv(file="ForageQualityData.csv")
+
+data1 = data1 %>%
+  mutate(rep= as.factor(rep),
+         N_trt = as.factor(N_trt))
+
+str(data1)
+```
+
+Crude Protein, Ash, aNDFom, NDFD30, Lignin, Ash, DM Yield, Milk Per Ton (MPT), Milk Per Acre (MPA), RFV, and RFQ
+```{r}
+#making separate data.frames for each location
+Dane = data1 %>%
+  #select(CP, aNDFom, Lignin, NDFD30, Ash, Milk.Ton_.Milk.2013, Milk.Acre, RFV, RFQ) %>%
+  filter(County == "DANE")
+
+Door = data1 %>%
+  filter(County == "DOOR")
+
+Dunn = data1 %>%
+  filter(County == "DUNN")
+
+Mara = data1 %>%
+  filter(County == "MARATHON")
+
+Ocon = data1 %>%
+  filter(County == "OCONTO")
+
+Outa1 = data1 %>%
+  filter(County == "OUTAGAMIE 1")
+
+Outa2 = data1 %>%
+  filter(County == "OUTAGAMIE 2")
+```
+
+
+
+
+# Crude Protein - CP
+```{r}
+data2 = data1 %>%
+  group_by(N_trt, County) %>%
+  summarise(CP_avg = mean(CP))
+
+ggplot(data2, aes(x=N_trt, y= CP_avg)) +
+  geom_point(data= data1, mapping = aes(y = CP, alpha = 0.01)) +
+  geom_point(color= "red") + #red dots are just means
+  facet_wrap(vars(County)) +
+  theme(legend.position = "none")
+```
+
+```{r}
+Dane %>%
+  shapiro_test(CP)
+
+ggqqplot(Dane, "CP")
+#looks good
+
+Door %>%
+  shapiro_test(CP)
+
+ggqqplot(Door, "CP")
+#looks good
+
+Dunn %>%
+  shapiro_test(CP)
+
+ggqqplot(Dunn, "CP")
+#looks good
+
+Mara %>%
+  shapiro_test(CP)
+
+ggqqplot(Mara, "CP")
+#looks good
+
+Ocon %>%
+  shapiro_test(CP)
+
+ggqqplot(Ocon, "CP")
+#looks good
+
+Outa1 %>%
+  shapiro_test(CP)
+
+ggqqplot(Outa1, "CP")
+#looks good
+
+Outa2 %>%
+  shapiro_test(CP)
+
+ggqqplot(Outa2, "CP")
+#looks good
+```
+
+```{r}
+Dane_mod.CP = lmer(CP ~ N_trt + (1|rep), data = Dane)
+Dane_AOV.CP = anova(Dane_mod.CP)
+#significant
+
+Door_mod.CP = lmer(CP ~ N_trt + (1|rep), data = Door)
+Door_AOV.CP = anova(Door_mod.CP)
+#significant
+
+Dunn_mod.CP = lmer(CP ~ N_trt + (1|rep), data = Dunn)
+Dunn_AOV.CP = anova(Dunn_mod.CP)
+#significant
+
+Mara_mod.CP = lmer(CP ~ N_trt + (1|rep), data = Mara)
+Mara_AOV.CP = anova(Mara_mod.CP)
+#significant
+
+Ocon_mod.CP = lmer(CP ~ N_trt + (1|rep), data = Ocon)
+Ocon_AOV.CP = anova(Ocon_mod.CP)
+#significant
+
+Outa1_mod.CP = lmer(CP ~ N_trt + (1|rep), data = Outa1)
+Outa1_AOV.CP = anova(Outa1_mod.CP)
+#significant
+
+Outa2_mod.CP = lmer(CP ~ N_trt + (1|rep), data = Outa2)
+Outa2_AOV.CP = anova(Outa2_mod.CP)
+#significant
+```
+
+```{r}
+Dane_AOV.CP = as_tibble(Dane_AOV.CP) %>%
+  mutate(County = "Dane",
+         Test = "CP")
+Door_AOV.CP = as_tibble(Door_AOV.CP) %>%
+  mutate(County = "Door",
+         Test = "CP")
+Dunn_AOV.CP = as_tibble(Dunn_AOV.CP) %>%
+  mutate(County = "Dunn",
+         Test = "CP")
+Mara_AOV.CP = as_tibble(Mara_AOV.CP) %>%
+  mutate(County = "Marathon",
+         Test = "CP")
+Ocon_AOV.CP = as_tibble(Ocon_AOV.CP) %>%
+  mutate(County = "Oconto",
+         Test = "CP")
+Outa1_AOV.CP = as_tibble(Outa1_AOV.CP) %>%
+  mutate(County = "Outagamie 1",
+         Test = "CP")
+Outa2_AOV.CP = as_tibble(Outa2_AOV.CP) %>%
+  mutate(County = "Outagamie 2",
+         Test = "CP")
+```
+
+
+# aNDFom
+```{r}
+data2 = data1 %>%
+  group_by(N_trt, County) %>%
+  summarise(aNDFom_avg = mean(aNDFom))
+
+ggplot(data2, aes(x=N_trt, y= aNDFom_avg)) +
+  geom_point(data= data1, mapping = aes(y = aNDFom, alpha = 0.01)) +
+  geom_point(color= "red") + #red dots are just means
+  facet_wrap(vars(County)) +
+  theme(legend.position = "none")
+```
+
+```{r}
+Dane %>%
+  shapiro_test(aNDFom)
+
+ggqqplot(Dane, "aNDFom")
+#looks good
+
+Door %>%
+  shapiro_test(aNDFom)
+
+ggqqplot(Door, "aNDFom")
+#looks okay
+
+Dunn %>%
+  shapiro_test(aNDFom)
+
+ggqqplot(Dunn, "aNDFom")
+#looks good
+
+Mara %>%
+  shapiro_test(aNDFom)
+
+ggqqplot(Mara, "aNDFom")
+#not great, but we'll probably use it
+
+Ocon %>%
+  shapiro_test(aNDFom)
+
+ggqqplot(Ocon, "aNDFom")
+#not great, but we'll probably use it
+
+Outa1 %>%
+  shapiro_test(aNDFom)
+
+ggqqplot(Outa1, "aNDFom")
+#not great, but we'll probably use it
+
+Outa2 %>%
+  shapiro_test(aNDFom)
+
+ggqqplot(Outa2, "aNDFom")
+#not great, but we'll probably use it
+```
+
+```{r}
+Dane_mod.aNDFom = lmer(aNDFom ~ N_trt + (1|rep), data = Dane)
+Dane_AOV.aNDFom = anova(Dane_mod.aNDFom)
+#not significant
+
+Door_mod.aNDFom = lmer(aNDFom ~ N_trt + (1|rep), data = Door)
+Door_AOV.aNDFom = anova(Door_mod.aNDFom)
+#significant
+
+Dunn_mod.aNDFom = lmer(aNDFom ~ N_trt + (1|rep), data = Dunn)
+Dunn_AOV.aNDFom = anova(Dunn_mod.aNDFom)
+#significant
+
+Mara_mod.aNDFom = lmer(aNDFom ~ N_trt + (1|rep), data = Mara)
+Mara_AOV.aNDFom = anova(Mara_mod.aNDFom)
+#not significant
+
+Ocon_mod.aNDFom = lmer(aNDFom ~ N_trt + (1|rep), data = Ocon)
+Ocon_AOV.aNDFom = anova(Ocon_mod.aNDFom)
+#significant
+
+Outa1_mod.aNDFom = lmer(aNDFom ~ N_trt + (1|rep), data = Outa1)
+Outa1_AOV.aNDFom = anova(Outa1_mod.aNDFom)
+#significant
+
+Outa2_mod.aNDFom = lmer(aNDFom ~ N_trt + (1|rep), data = Outa2)
+Outa2_AOV.aNDFom = anova(Outa2_mod.aNDFom)
+#significant
+```
+
+```{r}
+Dane_AOV.aNDFom = as_tibble(Dane_AOV.aNDFom) %>%
+  mutate(County = "Dane",
+         Test = "aNDFom")
+Door_AOV.aNDFom = as_tibble(Door_AOV.aNDFom) %>%
+  mutate(County = "Door",
+         Test = "aNDFom")
+Dunn_AOV.aNDFom = as_tibble(Dunn_AOV.aNDFom) %>%
+  mutate(County = "Dunn",
+         Test = "aNDFom")
+Mara_AOV.aNDFom = as_tibble(Mara_AOV.aNDFom) %>%
+  mutate(County = "Marathon",
+         Test = "aNDFom")
+Ocon_AOV.aNDFom = as_tibble(Ocon_AOV.aNDFom) %>%
+  mutate(County = "Oconto",
+         Test = "aNDFom")
+Outa1_AOV.aNDFom = as_tibble(Outa1_AOV.aNDFom) %>%
+  mutate(County = "Outagamie 1",
+         Test = "aNDFom")
+Outa2_AOV.aNDFom = as_tibble(Outa2_AOV.aNDFom) %>%
+  mutate(County = "Outagamei 2",
+         Test = "aNDFom")
+```
+
+
+# Lignin
+```{r}
+data2 = data1 %>%
+  group_by(N_trt, County) %>%
+  summarise(Lignin_avg = mean(Lignin))
+
+ggplot(data2, aes(x=N_trt, y= Lignin_avg)) +
+  geom_point(data= data1, mapping = aes(y = Lignin, alpha = 0.01)) +
+  geom_point(color= "red") + #red dots are just means
+  facet_wrap(vars(County)) +
+  theme(legend.position = "none")
+```
+
+
+```{r}
+Dane %>%
+  shapiro_test(Lignin)
+
+ggqqplot(Dane, "Lignin")
+#not great but will work
+
+Door %>%
+  shapiro_test(Lignin)
+
+ggqqplot(Door, "Lignin")
+#not great but will work
+
+Dunn %>%
+  shapiro_test(Lignin)
+
+ggqqplot(Dunn, "Lignin")
+#not great but will work
+
+Mara %>%
+  shapiro_test(Lignin)
+
+ggqqplot(Mara, "Lignin")
+#looks good
+
+Ocon %>%
+  shapiro_test(Lignin)
+
+ggqqplot(Ocon, "Lignin")
+#not great but will work
+
+Outa1 %>%
+  shapiro_test(Lignin)
+
+ggqqplot(Outa1, "Lignin")
+#not great but will work
+
+Outa2 %>%
+  shapiro_test(Lignin)
+
+ggqqplot(Outa2, "Lignin")
+#looks good
+```
+
+```{r}
+Dane_mod.Lignin = lmer(Lignin ~ N_trt + (1|rep), data = Dane)
+Dane_AOV.Lignin = anova(Dane_mod.Lignin)
+#not significant
+
+Door_mod.Lignin = lmer(Lignin ~ N_trt + (1|rep), data = Door)
+Door_AOV.Lignin = anova(Door_mod.Lignin)
+#significant
+
+Dunn_mod.Lignin = lmer(Lignin ~ N_trt + (1|rep), data = Dunn)
+Dunn_AOV.Lignin = anova(Dunn_mod.Lignin)
+#not significant
+
+Mara_mod.Lignin = lmer(Lignin ~ N_trt + (1|rep), data = Mara)
+Mara_AOV.Lignin = anova(Mara_mod.Lignin)
+#significant
+
+Ocon_mod.Lignin = lmer(Lignin ~ N_trt + (1|rep), data = Ocon)
+Ocon_AOV.Lignin = anova(Ocon_mod.Lignin)
+#not significant
+
+Outa1_mod.Lignin = lmer(Lignin ~ N_trt + (1|rep), data = Outa1)
+Outa1_AOV.Lignin = anova(Outa1_mod.Lignin)
+#significant
+
+Outa2_mod.Lignin = lmer(Lignin ~ N_trt + (1|rep), data = Outa2)
+Outa2_AOV.Lignin = anova(Outa2_mod.Lignin)
+#significant
+```
+
+```{r}
+Dane_AOV.Lignin = as_tibble(Dane_AOV.Lignin) %>%
+  mutate(County = "Dane",
+         Test = "Lignin")
+Door_AOV.Lignin = as_tibble(Door_AOV.Lignin) %>%
+  mutate(County = "Door",
+         Test = "Lignin")
+Dunn_AOV.Lignin = as_tibble(Dunn_AOV.Lignin) %>%
+  mutate(County = "Dunn",
+         Test = "Lignin")
+Mara_AOV.Lignin = as_tibble(Mara_AOV.Lignin) %>%
+  mutate(County = "Marathon",
+         Test = "Lignin")
+Ocon_AOV.Lignin = as_tibble(Ocon_AOV.Lignin) %>%
+  mutate(County = "Oconto",
+         Test = "Lignin")
+Outa1_AOV.Lignin = as_tibble(Outa1_AOV.Lignin) %>%
+  mutate(County = "Outagamie 1",
+         Test = "Lignin")
+Outa2_AOV.Lignin = as_tibble(Outa2_AOV.Lignin) %>%
+  mutate(County = "Outagamie 2",
+         Test = "Lignin")
+```
+
+
+# NDFD30
+```{r}
+data2 = data1 %>%
+  group_by(N_trt, County) %>%
+  summarise(NDFD30_avg = mean(NDFD30))
+
+ggplot(data2, aes(x=N_trt, y= NDFD30_avg)) +
+  geom_point(data= data1, mapping = aes(y = NDFD30, alpha = 0.01)) +
+  geom_point(color= "red") + #red dots are just means
+  facet_wrap(vars(County)) +
+  theme(legend.position = "none")
+```
+
+
+```{r}
+Dane %>%
+  shapiro_test(NDFD30)
+
+ggqqplot(Dane, "NDFD30")
+#not good
+
+Door %>%
+  shapiro_test(NDFD30)
+
+ggqqplot(Door, "NDFD30")
+#okay
+
+Dunn %>%
+  shapiro_test(NDFD30)
+
+ggqqplot(Dunn, "NDFD30")
+#okay
+
+Mara %>%
+  shapiro_test(NDFD30)
+
+ggqqplot(Mara, "NDFD30")
+#okay
+
+Ocon %>%
+  shapiro_test(NDFD30)
+
+ggqqplot(Ocon, "NDFD30")
+#not good
+
+Outa1 %>%
+  shapiro_test(NDFD30)
+
+ggqqplot(Outa1, "NDFD30")
+#okay
+
+Outa2 %>%
+  shapiro_test(NDFD30)
+
+ggqqplot(Outa2, "NDFD30")
+#okay
+```
+
+```{r}
+Dane_mod.NDFD30 = lmer(NDFD30 ~ N_trt + (1|rep), data = Dane)
+Dane_AOV.NDFD30 = anova(Dane_mod.NDFD30)
+#not significant
+
+Door_mod.NDFD30 = lmer(NDFD30 ~ N_trt + (1|rep), data = Door)
+Door_AOV.NDFD30 = anova(Door_mod.NDFD30)
+#significant
+
+Dunn_mod.NDFD30 = lmer(NDFD30 ~ N_trt + (1|rep), data = Dunn)
+Dunn_AOV.NDFD30 = anova(Dunn_mod.NDFD30)
+#significant
+
+Mara_mod.NDFD30 = lmer(NDFD30 ~ N_trt + (1|rep), data = Mara)
+Mara_AOV.NDFD30 = anova(Mara_mod.NDFD30)
+#not significant
+
+Ocon_mod.NDFD30 = lmer(NDFD30 ~ N_trt + (1|rep), data = Ocon)
+Ocon_AOV.NDFD30 = anova(Ocon_mod.NDFD30)
+#not significant
+
+Outa1_mod.NDFD30 = lmer(NDFD30 ~ N_trt + (1|rep), data = Outa1)
+Outa1_AOV.NDFD30 = anova(Outa1_mod.NDFD30)
+#not significant
+
+Outa2_mod.NDFD30 = lmer(NDFD30 ~ N_trt + (1|rep), data = Outa2)
+Outa2_AOV.NDFD30 = anova(Outa2_mod.NDFD30)
+#significant
+```
+
+```{r}
+Dane_AOV.NDFD30 = as_tibble(Dane_AOV.NDFD30) %>%
+  mutate(County = "Dane",
+         Test = "NDFD30")
+Door_AOV.NDFD30 = as_tibble(Door_AOV.NDFD30) %>%
+  mutate(County = "Door",
+         Test = "NDFD30")
+Dunn_AOV.NDFD30 = as_tibble(Dunn_AOV.NDFD30) %>%
+  mutate(County = "Dunn",
+         Test = "NDFD30")
+Mara_AOV.NDFD30 = as_tibble(Mara_AOV.NDFD30) %>%
+  mutate(County = "Marathon",
+         Test = "NDFD30")
+Ocon_AOV.NDFD30 = as_tibble(Ocon_AOV.NDFD30) %>%
+  mutate(County = "Oconto",
+         Test = "NDFD30")
+Outa1_AOV.NDFD30 = as_tibble(Outa1_AOV.NDFD30) %>%
+  mutate(County = "Outagamie 1",
+         Test = "NDFD30")
+Outa2_AOV.NDFD30 = as_tibble(Outa2_AOV.NDFD30) %>%
+  mutate(County = "Outagamie 2",
+         Test = "NDFD30")
+```
+
+
+# ASH
+```{r}
+data2 = data1 %>%
+  group_by(N_trt, County) %>%
+  summarise(Ash_avg = mean(Ash))
+
+ggplot(data2, aes(x=N_trt, y= Ash_avg)) +
+  geom_point(data= data1, mapping = aes(y = Ash, alpha = 0.01)) +
+  geom_point(color= "red") + #red dots are just means
+  facet_wrap(vars(County)) +
+  theme(legend.position = "none")
+```
+
+
+```{r}
+Dane %>%
+  shapiro_test(Ash)
+
+ggqqplot(Dane, "Ash")
+#okay
+
+Door %>%
+  shapiro_test(Ash)
+
+ggqqplot(Door, "Ash")
+#okay
+
+Dunn %>%
+  shapiro_test(Ash)
+
+ggqqplot(Dunn, "Ash")
+#not great, but will work
+
+Mara %>%
+  shapiro_test(Ash)
+
+ggqqplot(Mara, "Ash")
+#okay
+
+Ocon %>%
+  shapiro_test(Ash)
+
+ggqqplot(Ocon, "Ash")
+#okay
+
+Outa1 %>%
+  shapiro_test(Ash)
+
+ggqqplot(Outa1, "Ash")
+#not great, but will work
+
+Ocon %>%
+  shapiro_test(Ash)
+
+ggqqplot(Outa2, "Ash")
+#okay
+```
+
+```{r}
+Dane_mod.Ash = lmer(Ash ~ N_trt + (1|rep), data = Dane)
+Dane_AOV.Ash = anova(Dane_mod.Ash)
+#not significant
+
+Door_mod.Ash = lmer(Ash ~ N_trt + (1|rep), data = Door)
+Door_AOV.Ash = anova(Door_mod.Ash)
+#significant
+
+Dunn_mod.Ash = lmer(Ash ~ N_trt + (1|rep), data = Dunn)
+Dunn_AOV.Ash = anova(Dunn_mod.Ash)
+#significant
+
+Mara_mod.Ash = lmer(Ash ~ N_trt + (1|rep), data = Mara)
+Mara_AOV.Ash = anova(Mara_mod.Ash)
+#significant
+
+Ocon_mod.Ash = lmer(Ash ~ N_trt + (1|rep), data = Ocon)
+Ocon_AOV.Ash = anova(Ocon_mod.Ash)
+#significant
+
+Outa1_mod.Ash = lmer(Ash ~ N_trt + (1|rep), data = Outa1)
+Outa1_AOV.Ash = anova(Outa1_mod.Ash)
+#not significant
+
+Outa2_mod.Ash = lmer(Ash ~ N_trt + (1|rep), data = Outa2)
+Outa2_AOV.Ash = anova(Outa2_mod.Ash)
+#significant
+```
+
+```{r}
+Dane_AOV.Ash = as_tibble(Dane_AOV.Ash) %>%
+  mutate(County = "Dane",
+         Test = "Ash")
+Door_AOV.Ash = as_tibble(Door_AOV.Ash) %>%
+  mutate(County = "Door",
+         Test = "Ash")
+Dunn_AOV.Ash = as_tibble(Dunn_AOV.Ash) %>%
+  mutate(County = "Dunn",
+         Test = "Ash")
+Mara_AOV.Ash = as_tibble(Mara_AOV.Ash) %>%
+  mutate(County = "Marathon",
+         Test = "Ash")
+Ocon_AOV.Ash = as_tibble(Ocon_AOV.Ash) %>%
+  mutate(County = "Oconto",
+         Test = "Ash")
+Outa1_AOV.Ash = as_tibble(Outa1_AOV.Ash) %>%
+  mutate(County = "Outagamie 1",
+         Test = "Ash")
+Outa2_AOV.Ash = as_tibble(Outa2_AOV.Ash) %>%
+  mutate(County = "Outagamie 2",
+         Test = "Ash")
+```
+
+
+# Milk.Ton_.Milk.2013
+```{r}
+data2 = data1 %>%
+  group_by(N_trt, County) %>%
+  summarise(Milk.Ton_.Milk.2013_avg = mean(Milk.Ton_.Milk.2013))
+
+ggplot(data2, aes(x=N_trt, y= Milk.Ton_.Milk.2013_avg)) +
+  geom_point(data= data1, mapping = aes(y = Milk.Ton_.Milk.2013, alpha = 0.01)) +
+  geom_point(color= "red") + #red dots are just means
+  facet_wrap(vars(County)) +
+  theme(legend.position = "none")
+```
+
+
+```{r}
+Dane %>%
+  shapiro_test(Milk.Ton_.Milk.2013)
+
+ggqqplot(Dane, "Milk.Ton_.Milk.2013")
+#okay
+
+Door %>%
+  shapiro_test(Milk.Ton_.Milk.2013)
+
+ggqqplot(Door, "Milk.Ton_.Milk.2013")
+#looks good
+
+Dunn %>%
+  shapiro_test(Milk.Ton_.Milk.2013)
+
+ggqqplot(Dunn, "Milk.Ton_.Milk.2013")
+#okay
+
+Mara %>%
+  shapiro_test(Milk.Ton_.Milk.2013)
+
+ggqqplot(Mara, "Milk.Ton_.Milk.2013")
+#looks good
+
+Ocon %>%
+  shapiro_test(Milk.Ton_.Milk.2013)
+
+ggqqplot(Ocon, "Milk.Ton_.Milk.2013")
+#okay
+
+Outa1 %>%
+  shapiro_test(Milk.Ton_.Milk.2013)
+
+ggqqplot(Outa1, "Milk.Ton_.Milk.2013")
+#not great but it will work
+
+Outa2 %>%
+  shapiro_test(Milk.Ton_.Milk.2013)
+
+ggqqplot(Outa2, "Milk.Ton_.Milk.2013")
+#not great but it will work
+```
+
+```{r}
+Dane_mod.Milk.Ton_.Milk.2013 = lmer(Milk.Ton_.Milk.2013 ~ N_trt + (1|rep), data = Dane)
+Dane_AOV.Milk.Ton_.Milk.2013 = anova(Dane_mod.Milk.Ton_.Milk.2013)
+#not significant
+
+Door_mod.Milk.Ton_.Milk.2013 = lmer(Milk.Ton_.Milk.2013 ~ N_trt + (1|rep), data = Door)
+Door_AOV.Milk.Ton_.Milk.2013 = anova(Door_mod.Milk.Ton_.Milk.2013)
+#not significant
+
+Dunn_mod.Milk.Ton_.Milk.2013 = lmer(Milk.Ton_.Milk.2013 ~ N_trt + (1|rep), data = Dunn)
+Dunn_AOV.Milk.Ton_.Milk.2013 = anova(Dunn_mod.Milk.Ton_.Milk.2013)
+#not significant
+
+Mara_mod.Milk.Ton_.Milk.2013 = lmer(Milk.Ton_.Milk.2013 ~ N_trt + (1|rep), data = Mara)
+Mara_AOV.Milk.Ton_.Milk.2013 = anova(Mara_mod.Milk.Ton_.Milk.2013)
+#not significant
+
+Ocon_mod.Milk.Ton_.Milk.2013 = lmer(Milk.Ton_.Milk.2013 ~ N_trt + (1|rep), data = Ocon)
+Ocon_AOV.Milk.Ton_.Milk.2013 = anova(Ocon_mod.Milk.Ton_.Milk.2013)
+#not significant
+
+Outa1_mod.Milk.Ton_.Milk.2013 = lmer(Milk.Ton_.Milk.2013 ~ N_trt + (1|rep), data = Outa1)
+Outa1_AOV.Milk.Ton_.Milk.2013 = anova(Outa1_mod.Milk.Ton_.Milk.2013)
+#not significant
+
+Outa2_mod.Milk.Ton_.Milk.2013 = lmer(Milk.Ton_.Milk.2013 ~ N_trt + (1|rep), data = Outa2)
+Outa2_AOV.Milk.Ton_.Milk.2013 = anova(Outa2_mod.Milk.Ton_.Milk.2013)
+#not significant
+```
+
+```{r}
+Dane_AOV.Milk.Ton_.Milk.2013 = as_tibble(Dane_AOV.Milk.Ton_.Milk.2013) %>%
+  mutate(County = "Dane",
+         Test = "Milk.Ton_.Milk.2013")
+Door_AOV.Milk.Ton_.Milk.2013 = as_tibble(Door_AOV.Milk.Ton_.Milk.2013) %>%
+  mutate(County = "Door",
+         Test = "Milk.Ton_.Milk.2013")
+Dunn_AOV.Milk.Ton_.Milk.2013 = as_tibble(Dunn_AOV.Milk.Ton_.Milk.2013) %>%
+  mutate(County = "Dunn",
+         Test = "Milk.Ton_.Milk.2013")
+Mara_AOV.Milk.Ton_.Milk.2013 = as_tibble(Mara_AOV.Milk.Ton_.Milk.2013) %>%
+  mutate(County = "Marathon",
+         Test = "Milk.Ton_.Milk.2013")
+Ocon_AOV.Milk.Ton_.Milk.2013 = as_tibble(Ocon_AOV.Milk.Ton_.Milk.2013) %>%
+  mutate(County = "Oconto",
+         Test = "Milk.Ton_.Milk.2013")
+Outa1_AOV.Milk.Ton_.Milk.2013 = as_tibble(Outa1_AOV.Milk.Ton_.Milk.2013) %>%
+  mutate(County = "Outagamie 1",
+         Test = "Milk.Ton_.Milk.2013")
+Outa2_AOV.Milk.Ton_.Milk.2013 = as_tibble(Outa2_AOV.Milk.Ton_.Milk.2013) %>%
+  mutate(County = "Outagamie 2",
+         Test = "Milk.Ton_.Milk.2013")
+```
+
+
+# Milk.Acre
+```{r}
+data2 = data1 %>%
+  group_by(N_trt, County) %>%
+  summarise(Milk.Acre_avg = mean(Milk.Acre))
+
+ggplot(data2, aes(x=N_trt, y= Milk.Acre_avg)) +
+  geom_point(data= data1, mapping = aes(y = Milk.Acre, alpha = 0.01)) +
+  geom_point(color= "red") + #red dots are just means
+  facet_wrap(vars(County)) +
+  theme(legend.position = "none")
+```
+
+
+```{r}
+Dane %>%
+  shapiro_test(Milk.Acre)
+
+ggqqplot(Dane, "Milk.Acre")
+#not good, but will work
+
+Door %>%
+  shapiro_test(Milk.Acre)
+
+ggqqplot(Door, "Milk.Acre")
+#okay
+
+Dunn %>%
+  shapiro_test(Milk.Acre)
+
+ggqqplot(Dunn, "Milk.Acre")
+#looks good
+
+Mara %>%
+  shapiro_test(Milk.Acre)
+
+ggqqplot(Mara, "Milk.Acre")
+#looks good
+
+Ocon %>%
+  shapiro_test(Milk.Acre)
+
+ggqqplot(Ocon, "Milk.Acre")
+#not good but will work
+
+Outa1 %>%
+  shapiro_test(Milk.Acre)
+
+ggqqplot(Outa1, "Milk.Acre")
+#okay
+
+Outa2 %>%
+  shapiro_test(Milk.Acre)
+
+ggqqplot(Outa2, "Milk.Acre")
+#okay
+```
+
+```{r}
+Dane_mod.Milk.Acre = lmer(Milk.Acre ~ N_trt + (1|rep), data = Dane)
+Dane_AOV.Milk.Acre = anova(Dane_mod.Milk.Acre)
+#not significant
+
+Door_mod.Milk.Acre = lmer(Milk.Acre ~ N_trt + (1|rep), data = Door)
+Door_AOV.Milk.Acre = anova(Door_mod.Milk.Acre)
+#not significant
+
+Dunn_mod.Milk.Acre = lmer(Milk.Acre ~ N_trt + (1|rep), data = Dunn)
+Dunn_AOV.Milk.Acre = anova(Dunn_mod.Milk.Acre)
+#not significant
+
+Mara_mod.Milk.Acre = lmer(Milk.Acre ~ N_trt + (1|rep), data = Mara)
+Mara_AOV.Milk.Acre = anova(Mara_mod.Milk.Acre)
+#not significant
+
+Ocon_mod.Milk.Acre = lmer(Milk.Acre ~ N_trt + (1|rep), data = Ocon)
+Ocon_AOV.Milk.Acre = anova(Ocon_mod.Milk.Acre)
+#not significant
+
+Outa1_mod.Milk.Acre = lmer(Milk.Acre ~ N_trt + (1|rep), data = Outa1)
+Outa1_AOV.Milk.Acre = anova(Outa1_mod.Milk.Acre)
+#not significant
+
+Outa2_mod.Milk.Acre = lmer(Milk.Acre ~ N_trt + (1|rep), data = Outa2)
+Outa2_AOV.Milk.Acre = anova(Outa2_mod.Milk.Acre)
+#significant
+```
+
+```{r}
+Dane_AOV.Milk.Acre = as_tibble(Dane_AOV.Milk.Acre) %>%
+  mutate(County = "Dane",
+         Test = "Milk.Acre")
+Door_AOV.Milk.Acre = as_tibble(Door_AOV.Milk.Acre) %>%
+  mutate(County = "Door",
+         Test = "Milk.Acre")
+Dunn_AOV.Milk.Acre = as_tibble(Dunn_AOV.Milk.Acre) %>%
+  mutate(County = "Dunn",
+         Test = "Milk.Acre")
+Mara_AOV.Milk.Acre = as_tibble(Mara_AOV.Milk.Acre) %>%
+  mutate(County = "Marathon",
+         Test = "Milk.Acre")
+Ocon_AOV.Milk.Acre = as_tibble(Ocon_AOV.Milk.Acre) %>%
+  mutate(County = "Oconto",
+         Test = "Milk.Acre")
+Outa1_AOV.Milk.Acre = as_tibble(Outa1_AOV.Milk.Acre) %>%
+  mutate(County = "Outagamie 1",
+         Test = "Milk.Acre")
+Outa2_AOV.Milk.Acre = as_tibble(Outa2_AOV.Milk.Acre) %>%
+  mutate(County = "Outagamie 2",
+         Test = "Milk.Acre")
+```
+
+
+# RFV
+```{r}
+data2 = data1 %>%
+  group_by(N_trt, County) %>%
+  summarise(RFV_avg = mean(RFV))
+
+ggplot(data2, aes(x=N_trt, y= RFV_avg)) +
+  geom_point(data= data1, mapping = aes(y = RFV, alpha = 0.01)) +
+  geom_point(color= "red") + #red dots are just means
+  facet_wrap(vars(County)) +
+  theme(legend.position = "none")
+```
+
+
+```{r}
+Dane %>%
+  shapiro_test(RFV)
+
+ggqqplot(Dane, "RFV")
+#looks good
+
+Door %>%
+  shapiro_test(RFV)
+
+ggqqplot(Door, "RFV")
+#okay
+
+Dunn %>%
+  shapiro_test(RFV)
+
+ggqqplot(Dunn, "RFV")
+#looks good
+
+Mara %>%
+  shapiro_test(RFV)
+
+ggqqplot(Mara, "RFV")
+#not good, but will work
+
+Ocon %>%
+  shapiro_test(RFV)
+
+ggqqplot(Ocon, "RFV")
+#looks good
+
+Outa1 %>%
+  shapiro_test(RFV)
+
+ggqqplot(Outa1, "RFV")
+#okay
+
+Outa2 %>%
+  shapiro_test(RFV)
+
+ggqqplot(Outa2, "RFV")
+#not good, but will work
+```
+
+```{r}
+Dane_mod.RFV = lmer(RFV ~ N_trt + (1|rep), data = Dane)
+Dane_AOV.RFV = anova(Dane_mod.RFV)
+#not significant
+
+Door_mod.RFV = lmer(RFV ~ N_trt + (1|rep), data = Door)
+Door_AOV.RFV = anova(Door_mod.RFV)
+#significant
+
+Dunn_mod.RFV = lmer(RFV ~ N_trt + (1|rep), data = Dunn)
+Dunn_AOV.RFV = anova(Dunn_mod.RFV)
+#not significant
+
+Mara_mod.RFV = lmer(RFV ~ N_trt + (1|rep), data = Mara)
+Mara_AOV.RFV = anova(Mara_mod.RFV)
+#not significant
+
+Ocon_mod.RFV = lmer(RFV ~ N_trt + (1|rep), data = Ocon)
+Ocon_AOV.RFV = anova(Ocon_mod.RFV)
+#significant
+
+Outa1_mod.RFV = lmer(RFV ~ N_trt + (1|rep), data = Outa1)
+Outa1_AOV.RFV = anova(Outa1_mod.RFV)
+#significant
+
+Outa2_mod.RFV = lmer(RFV ~ N_trt + (1|rep), data = Outa2)
+Outa2_AOV.RFV = anova(Outa2_mod.RFV)
+#significant
+```
+
+```{r}
+Dane_AOV.RFV = as_tibble(Dane_AOV.RFV) %>%
+  mutate(County = "Dane",
+         Test = "RFV")
+Door_AOV.RFV = as_tibble(Door_AOV.RFV) %>%
+  mutate(County = "Door",
+         Test = "RFV")
+Dunn_AOV.RFV = as_tibble(Dunn_AOV.RFV) %>%
+  mutate(County = "Dunn",
+         Test = "RFV")
+Mara_AOV.RFV = as_tibble(Mara_AOV.RFV) %>%
+  mutate(County = "Marathon",
+         Test = "RFV")
+Ocon_AOV.RFV = as_tibble(Ocon_AOV.RFV) %>%
+  mutate(County = "Oconto",
+         Test = "RFV")
+Outa1_AOV.RFV = as_tibble(Outa1_AOV.RFV) %>%
+  mutate(County = "Outagamie 1",
+         Test = "RFV")
+Outa2_AOV.RFV = as_tibble(Outa2_AOV.RFV) %>%
+  mutate(County = "Outagamie 2",
+         Test = "RFV")
+```
+
+
+# RFQ
+```{r}
+data2 = data1 %>%
+  group_by(N_trt, County) %>%
+  summarise(RFQ_avg = mean(RFQ))
+
+ggplot(data2, aes(x=N_trt, y= RFQ_avg)) +
+  geom_point(data= data1, mapping = aes(y = RFQ, alpha = 0.01)) +
+  geom_point(color= "red") + #red dots are just means
+  facet_wrap(vars(County)) +
+  theme(legend.position = "none")
+```
+
+
+```{r}
+Dane %>%
+  shapiro_test(RFQ)
+
+ggqqplot(Dane, "RFQ")
+#okay
+
+Door %>%
+  shapiro_test(RFQ)
+
+ggqqplot(Door, "RFQ")
+#okay
+
+Dunn %>%
+  shapiro_test(RFQ)
+
+ggqqplot(Dunn, "RFQ")
+#okay
+
+Mara %>%
+  shapiro_test(RFQ)
+
+ggqqplot(Mara, "RFQ")
+#okay
+
+Ocon %>%
+  shapiro_test(RFQ)
+
+ggqqplot(Ocon, "RFQ")
+#looks good
+
+Outa1 %>%
+  shapiro_test(RFQ)
+
+ggqqplot(Outa1, "RFQ")
+#okay
+
+Outa2 %>%
+  shapiro_test(RFQ)
+
+ggqqplot(Outa2, "RFQ")
+#okay
+```
+
+```{r}
+Dane_mod.RFQ = lmer(RFQ ~ N_trt + (1|rep), data = Dane)
+Dane_AOV.RFQ = anova(Dane_mod.RFQ)
+#not significant
+
+Door_mod.RFQ = lmer(RFQ ~ N_trt + (1|rep), data = Door)
+Door_AOV.RFQ = anova(Door_mod.RFQ)
+#not significant
+
+Dunn_mod.RFQ = lmer(RFQ ~ N_trt + (1|rep), data = Dunn)
+Dunn_AOV.RFQ = anova(Dunn_mod.RFQ)
+#not significant
+
+Mara_mod.RFQ = lmer(RFQ ~ N_trt + (1|rep), data = Mara)
+Mara_AOV.RFQ = anova(Mara_mod.RFQ)
+#not significant
+
+Ocon_mod.RFQ = lmer(RFQ ~ N_trt + (1|rep), data = Ocon)
+Ocon_AOV.RFQ = anova(Ocon_mod.RFQ)
+#significant
+
+Outa1_mod.RFQ = lmer(RFQ ~ N_trt + (1|rep), data = Outa1)
+Outa1_AOV.RFQ = anova(Outa1_mod.RFQ)
+#not significant
+
+Outa2_mod.RFQ = lmer(RFQ ~ N_trt + (1|rep), data = Outa2)
+Outa2_AOV.RFQ = anova(Outa2_mod.RFQ)
+#significant
+```
+
+```{r}
+Dane_AOV.RFQ = as_tibble(Dane_AOV.RFQ) %>%
+  mutate(County = "Dane",
+         Test = "RFQ")
+Door_AOV.RFQ = as_tibble(Door_AOV.RFQ) %>%
+  mutate(County = "Door",
+         Test = "RFQ")
+Dunn_AOV.RFQ = as_tibble(Dunn_AOV.RFQ) %>%
+  mutate(County = "Dunn",
+         Test = "RFQ")
+Mara_AOV.RFQ = as_tibble(Mara_AOV.RFQ) %>%
+  mutate(County = "Marathon",
+         Test = "RFQ")
+Ocon_AOV.RFQ = as_tibble(Ocon_AOV.RFQ) %>%
+  mutate(County = "Oconto",
+         Test = "RFQ")
+Outa1_AOV.RFQ = as_tibble(Outa1_AOV.RFQ) %>%
+  mutate(County = "Outagamie 1",
+         Test = "RFQ")
+Outa2_AOV.RFQ = as_tibble(Outa2_AOV.RFQ) %>%
+  mutate(County = "Outagamie 2",
+         Test = "RFQ")
+```
+
+# Making a table of all ANOVA outputs
+```{r}
+Anova_Results = rbind(Dane_AOV.CP, Door_AOV.CP, Dunn_AOV.CP, Mara_AOV.CP, Ocon_AOV.CP, Outa1_AOV.CP, Outa2_AOV.CP, Dane_AOV.aNDFom, Door_AOV.aNDFom, Dunn_AOV.aNDFom, Mara_AOV.aNDFom, Ocon_AOV.aNDFom, Outa1_AOV.aNDFom, Outa2_AOV.aNDFom, Dane_AOV.NDFD30, Door_AOV.NDFD30, Dunn_AOV.NDFD30, Mara_AOV.NDFD30, Ocon_AOV.NDFD30, Outa1_AOV.NDFD30, Outa2_AOV.NDFD30, Dane_AOV.Ash, Door_AOV.Ash, Dunn_AOV.Ash, Mara_AOV.Ash, Ocon_AOV.Ash, Outa1_AOV.Ash, Outa2_AOV.Ash, Dane_AOV.Milk.Ton_.Milk.2013, Door_AOV.Milk.Ton_.Milk.2013, Dunn_AOV.Milk.Ton_.Milk.2013, Mara_AOV.Milk.Ton_.Milk.2013, Ocon_AOV.Milk.Ton_.Milk.2013, Outa1_AOV.Milk.Ton_.Milk.2013, Outa2_AOV.Milk.Ton_.Milk.2013, Dane_AOV.RFV, Door_AOV.RFV, Dunn_AOV.RFV, Mara_AOV.RFV, Ocon_AOV.RFV, Outa1_AOV.RFV, Outa2_AOV.RFV, Dane_AOV.RFQ, Door_AOV.RFQ, Dunn_AOV.RFQ, Mara_AOV.RFQ, Ocon_AOV.RFQ, Outa1_AOV.RFQ, Outa2_AOV.RFQ)
+```
+
+```{r}
+library(writexl)
+write_xlsx(Anova_Results, "ForageQuality_AnovaResults.xlsx")
+```
+
+
+#select(CP, aNDFom, Lignin, NDFD30, Ash, Milk.Ton_.Milk.2013, Milk.Acre, RFV, RFQ)

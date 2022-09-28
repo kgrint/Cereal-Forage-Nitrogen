@@ -221,53 +221,53 @@ Outagamie1_CLD = as_tibble(Outagamie1_CLD) %>%
 
 # Door County - maybe can't use because missing 2 fall samples
 ```{r}
-Door12 = data1 %>%
-  filter(County == "Door", Depth == "0-12")
+#Door12 = data1 %>%
+  #filter(County == "Door", Depth == "0-12")
 ```
 
 
 ```{r}
 #Looking for outliers
-Door12 %>%
-  group_by(Timing) %>%
-  identify_outliers(N_ppm)#1 outlier and it is extreme
+#Door12 %>%
+  #group_by(Timing) %>%
+  #identify_outliers(N_ppm)#1 outlier and it is extreme
 ```
 
 ```{r}
 #Normality Test
-Door12 %>%
-  group_by(Timing) %>%
-  shapiro_test(N_ppm) #can't perform because of missing data
+#Door12 %>%
+  #group_by(Timing) %>%
+  #shapiro_test(N_ppm) #can't perform because of missing data
 
-ggqqplot(Door12, "N_ppm", facet.by = "Timing")
+#ggqqplot(Door12, "N_ppm", facet.by = "Timing")
 #looks good
 ```
 
 ```{r}
-Door12_model = lmer(N_ppm ~ Timing + (1|Rep), data = Door12)
+#Door12_model = lmer(N_ppm ~ Timing + (1|Rep), data = Door12)
 ```
 
 ```{r}
-anova(Door12_model)
+#anova(Door12_model)
 #significant differences based on timing
 ```
 
 ```{r}
-Door_12_means = lsmeans(Door_12, ~ Timing, contr= "pairwise", adjust= "none")
+#Door_12_means = lsmeans(Door_12, ~ Timing, contr= "pairwise", adjust= "none")
 
-Door_12_CLD = cld(Door_12_means$lsmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
+#Door_12_CLD = cld(Door_12_means$lsmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
 ```
 
 ```{r}
-Door_12_CLD = Door_12_CLD %>%
-  mutate(Depth = "0-12")
+#Door_12_CLD = Door_12_CLD %>%
+  #mutate(Depth = "0-12")
 
-Door_CLD = as_tibble(Door_12_CLD) %>% 
-  rename(N_ppm = lsmean) %>%
-  mutate(N_ppm = round(N_ppm,0),
-         Timing = factor(Timing, c("Fall", "Spring", "Harvest")),
-         Depth = factor(Depth, c("0-12")),
-         Location = "Door")
+#Door_CLD = as_tibble(Door_12_CLD) %>% 
+  #rename(N_ppm = lsmean) %>%
+  #mutate(N_ppm = round(N_ppm,0),
+         #Timing = factor(Timing, c("Fall", "Spring", "Harvest")),
+         #Depth = factor(Depth, c("0-12")),
+         #Location = "Door")
 ```
 
 # Outagamie 2 - Oneida Nation
@@ -560,8 +560,8 @@ anova(Dunn24_model)
 ```
 
 ```{r}
-Dunn_12_means = lsmeans(Dunn_12, ~ Timing, contr= "pairwise", adjust= "none")
-Dunn_24_means = lsmeans(Dunn_24, ~ Timing, contr= "pairwise", adjust= "none")
+Dunn_12_means = lsmeans(Dunn12_model, ~ Timing, contr= "pairwise", adjust= "none")
+Dunn_24_means = lsmeans(Dunn24_model, ~ Timing, contr= "pairwise", adjust= "none")
 
 Dunn_12_CLD = cld(Dunn_12_means$lsmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=FALSE)
 Dunn_24_CLD = cld(Dunn_24_means$lsmeans,alpha=0.05, Letters=letters, sort=FALSE, reverse=TRUE)
@@ -586,7 +586,9 @@ Dunn_CLD = as_tibble(Dunn_CLD) %>%
 
 # Figure for all locations
 ```{r}
-all_sites = rbind(Dunn_CLD, Oconto_CLD, Marathon_CLD, Outagamie1_CLD, Outagamie2_CLD, Door_CLD, Dane_CLD)
+all_sites = rbind(Dunn_CLD, Oconto_CLD, Marathon_CLD, Outagamie1_CLD, Outagamie2_CLD, Dane_CLD)
+
+#Door not included
 ```
 
 ```{r, fig.height = 8, fig.width = 11}
