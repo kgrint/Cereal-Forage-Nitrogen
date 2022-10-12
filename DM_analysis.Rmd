@@ -323,3 +323,26 @@ write_xlsx(DMAnova_Results, "DMAnova_Results.xlsx")
 write_xlsx(DMMeans_Results, "DMMeans_Results.xlsx")
 ```
 
+
+```{r, fig.height = 8, fig.width = 11}
+DM_figure =
+  DMMeans_Results %>%
+  ggplot(aes(x= N_trt, y= DM)) +
+  geom_point(aes(), size = 5) +
+  geom_point(data= data1, aes(x= N_trt, y= DM_total), color = "red") +
+  geom_pointrange(aes(ymin = lower.CL, ymax = upper.CL)) +
+  geom_text(aes(label = .group), nudge_x =  0.26, size = 10) +
+  facet_grid(cols = vars(Location)) +
+  labs(title = "forage dry matter", x = "Nitrogen Rate", y = "dry matter (tons/acre)") +
+  theme(legend.position = "none",
+        axis.title.x = element_text(size = 50),
+        axis.title.y = element_text(size = 50),
+        axis.text.y = element_text(size = 30),
+        axis.text.x = element_text(size = 30, angle = 45, hjust = 1),
+        strip.text.x = element_text(size = 30),
+        strip.text.y = element_text(size = 30),
+        title = element_text(size = 50))
+
+DM_figure
+```
+
